@@ -1,0 +1,82 @@
+.topbar {
+  height: 70px;
+  background-color: var(--brand-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2rem;
+  box-shadow: var(--shadow-sm);
+  z-index: 10;
+}
+
+.brand {
+  font-size: 1.25rem;
+  color: var(--bg-card);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  background-color: var(--bg-card);
+  color: var(--brand-primary);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  text-align: right;
+}
+
+.user-info strong { 
+  font-size: 0.875rem; 
+  color: var(--bg-card); 
+}
+
+.user-info span { 
+  font-size: 0.75rem; 
+  color: var(--bg-card);
+  opacity: 0.9;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-muted);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+}
+
+.logout-btn:hover {
+  background-color: #fff5f5;
+  color: #e53e3e;
+}
+
+.logout-btn svg {
+  transition: transform 0.2s;
+}
+
+.logout-btn:hover svg {
+  transform: translateX(3px);
+}

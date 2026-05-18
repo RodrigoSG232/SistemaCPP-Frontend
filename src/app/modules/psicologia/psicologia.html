@@ -1,0 +1,152 @@
+<div class="psicologia-container">
+
+  <!-- ═══════════ AGENDA PANEL ═══════════ -->
+  <aside class="agenda-panel">
+    <div class="panel-header">
+      <h2>Mi Agenda</h2>
+      <input type="date" class="date-input-mini" [(ngModel)]="fechaSeleccionada" (change)="onFechaChange()">
+    </div>
+
+    <div *ngIf="loadingAgenda" class="loading-small">Cargando agenda...</div>
+
+    <div class="queue-list" *ngIf="!loadingAgenda">
+      <div *ngIf="citas.length === 0" class="empty-queue">Sin citas para este día</div>
+
+      <div class="queue-item"
+           *ngFor="let c of citas"
+           [class.active-item]="citaActiva?.id === c.id"
+           (click)="seleccionarCita(c)"
+           role="button">
+        <div class="queue-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+        <div class="queue-info">
+          <strong>{{ c.paciente?.nombres }} {{ c.paciente?.apellidos }}</strong>
+          <span class="text-muted">{{ c.horaCita }} | <span class="estado-dot estado-{{ c.estado | lowercase }}">{{ c.estado | titlecase }}</span></span>
+        </div>
+        <button class="btn-outline-small" *ngIf="c.estado === 'PAGADA'" (click)="$event.stopPropagation(); llamarPaciente(c)">Llamar</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ PANEL CLÍNICO ═══════════ -->
+  <main class="clinical-panel">
+
+    <!-- Sin cita seleccionada -->
+    <div class="empty-state" *ngIf="!citaActiva">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <h3>Seleccione un paciente de la agenda</h3>
+      <p class="text-muted">Haga clic sobre una cita para atender al paciente.</p>
+    </div>
+
+    <!-- Con cita seleccionada -->
+    <div class="session-active" *ngIf="citaActiva">
+
+      <!-- Header paciente -->
+      <div class="patient-header card">
+        <div class="patient-title">
+          <h2>{{ citaActiva.paciente?.nombres }} {{ citaActiva.paciente?.apellidos }}</h2>
+          <span class="hc-badge">HC: {{ citaActiva.paciente?.numeroHistoria }}</span>
+          <span class="estado-badge-lg estado-{{ citaActiva.estado | lowercase }}">{{ citaActiva.estado }}</span>
+        </div>
+        <div class="patient-meta">
+          <span>DNI: {{ citaActiva.paciente?.dni }}</span>
+          <span>Cita: {{ citaActiva.fechaCita | date:'dd/MM/yyyy' }} {{ citaActiva.horaCita }}</span>
+          <span>Sesiones: {{ sesiones.length }}</span>
+        </div>
+        <button class="btn-secondary btn-sm" (click)="mostrarHistorial = !mostrarHistorial">
+          {{ mostrarHistorial ? 'Ocultar Historial' : 'Ver Historial Clínico' }}
+        </button>
+      </div>
+
+      <!-- Historial sesiones -->
+      <div class="card mb-md" *ngIf="mostrarHistorial">
+        <h4>Historial de Sesiones ({{ sesiones.length }})</h4>
+        <div *ngIf="sesiones.length === 0" class="text-muted">Sin sesiones registradas aún.</div>
+        <div class="sesion-item" *ngFor="let s of sesiones">
+          <div class="sesion-meta">
+            <strong>{{ s.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</strong>
+            <span class="badge">Fase {{ s.faseSesion }}</span>
+          </div>
+          <div class="sesion-body">
+            <p><strong>Evolución:</strong> {{ s.evolucion }}</p>
+            <p *ngIf="s.indicacionesPaciente"><strong>Indicaciones:</strong> {{ s.indicacionesPaciente }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sin proceso terapéutico -->
+      <div class="card no-proceso" *ngIf="!proceso">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+        <h4>Sin Proceso Terapéutico Activo</h4>
+        <p class="text-muted">Este paciente no tiene un proceso terapéutico iniciado. Inícielo para registrar sesiones.</p>
+        <button class="btn-primary" (click)="iniciarProceso()" [disabled]="iniciandoProceso">
+          {{ iniciandoProceso ? 'Iniciando...' : '+ Iniciar Proceso Terapéutico' }}
+        </button>
+        <div class="error-message mt-sm" *ngIf="errorSesion">{{ errorSesion }}</div>
+      </div>
+
+      <!-- Con proceso activo -->
+      <ng-container *ngIf="proceso">
+
+        <div class="macro-phase-card card">
+          <div class="phase-header">
+            <div>
+              <h3>Fase Global del Proceso Terapéutico</h3>
+              <p class="text-muted">Actualice al avanzar de etapa (semanas/meses).</p>
+            </div>
+            <div class="phase-selector">
+              <select [(ngModel)]="faseSeleccionada" (change)="actualizarFase()">
+                <option *ngFor="let k of fasesKeys" [value]="k">{{ fases[k].nombre }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="phase-description">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            {{ faseInfo.descripcion }}
+          </div>
+        </div>
+
+        <!-- Mensaje guardado -->
+        <div class="success-banner" *ngIf="mensajeSesion">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          {{ mensajeSesion }}
+        </div>
+
+        <div class="clinical-forms grid-2" *ngIf="citaActiva.estado !== 'ATENDIDA'">
+          <div class="form-card card">
+            <div class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <h3>Evolución de la Sesión (Hoy) *</h3>
+            </div>
+            <textarea class="clinical-textarea" [(ngModel)]="evolucion"
+              placeholder="Registre observaciones, técnicas aplicadas, avances o retrocesos..."></textarea>
+          </div>
+
+          <div class="form-card card treatment-bg">
+            <div class="card-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+              <h3>Indicaciones para el Paciente</h3>
+            </div>
+            <textarea class="clinical-textarea treatment-input" [(ngModel)]="indicaciones"
+              placeholder="Tareas, lecturas, autorregistros o ejercicios para casa..."></textarea>
+          </div>
+        </div>
+
+        <div class="action-footer" *ngIf="citaActiva.estado !== 'ATENDIDA'">
+          <div class="error-message" *ngIf="errorSesion">{{ errorSesion }}</div>
+          <button class="btn-primary btn-large" (click)="guardarSesion()" [disabled]="guardandoSesion">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            {{ guardandoSesion ? 'Guardando...' : 'Guardar Sesión' }}
+          </button>
+        </div>
+
+        <div class="atendida-banner" *ngIf="citaActiva.estado === 'ATENDIDA'">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Esta sesión ya fue registrada.
+        </div>
+
+      </ng-container>
+    </div>
+  </main>
+</div>

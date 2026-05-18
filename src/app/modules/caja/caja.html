@@ -1,0 +1,165 @@
+<div class="caja-container">
+
+  <div class="caja-header">
+    <h2>Caja y Facturación</h2>
+    <p class="text-muted">Busque deudas pendientes y procese los comprobantes de pago.</p>
+  </div>
+
+  <!-- Comprobante emitido -->
+  <div class="card comprobante-card" *ngIf="comprobanteEmitido">
+    <div class="comprobante-check">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
+    <h3>¡Pago Registrado!</h3>
+    <div class="comprobante-detail">
+      <div class="comprobante-row">
+        <span>N° Comprobante:</span>
+        <strong>{{ comprobanteEmitido.numeroComprobante }}</strong>
+      </div>
+      <div class="comprobante-row">
+        <span>Monto Pagado:</span>
+        <strong class="monto-pagado">S/ {{ comprobanteEmitido.comprobante?.montoPagado | number:'1.2-2' }}</strong>
+      </div>
+      <div class="comprobante-row">
+        <span>Medio de Pago:</span>
+        <strong>{{ comprobanteEmitido.comprobante?.medioPago }}</strong>
+      </div>
+    </div>
+    <button class="btn-primary btn-large" (click)="nuevaBusqueda()">Nueva Búsqueda</button>
+  </div>
+
+  <!-- Búsqueda -->
+  <div class="card filter-section" *ngIf="!comprobanteEmitido">
+    <div class="form-grid-3">
+      <div class="form-group">
+        <label>Buscar Paciente (DNI o Nombres)</label>
+        <div class="input-with-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" [(ngModel)]="filtroPaciente" placeholder="Ej: 76543210 o García..."
+            (keyup.enter)="buscarDeudas()">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Filtro por Concepto</label>
+        <select [(ngModel)]="filtroConcepto">
+          <option *ngFor="let c of conceptos">{{ c }}</option>
+        </select>
+      </div>
+      <div class="form-group align-bottom">
+        <button class="btn-primary full-width" (click)="buscarDeudas()" [disabled]="buscando">
+          {{ buscando ? 'Buscando...' : 'Buscar Deuda' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados -->
+  <div class="card table-section" *ngIf="buscado && !comprobanteEmitido && !deudaSeleccionada">
+    <div class="table-header-row">
+      <h3>Deudas Pendientes</h3>
+      <span class="badge-count">{{ deudas.length }} resultado(s)</span>
+    </div>
+    <div class="table-responsive">
+      <table class="data-table" *ngIf="deudas.length > 0; else sinDeudas">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Concepto</th>
+            <th>Especialidad</th>
+            <th>Monto</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of deudas">
+            <td>
+              <strong>{{ d.pacienteNombre }}</strong><br>
+              <span class="text-muted text-xs">DNI: {{ d.pacienteDni }}</span>
+            </td>
+
+            <td>{{ d.concepto }}</td>
+            <td>{{ d.especialidad || '—' }}</td>
+            <td>S/ {{ d.monto | number:'1.2-2' }}</td>
+            <td>
+              <span class="estado-badge estado-{{ d.estado | lowercase }}">{{ d.estado }}</span>
+            </td>
+            <td>
+              <button class="btn-outline-small" (click)="seleccionarDeuda(d)" *ngIf="d.estado === 'PENDIENTE'">
+                Cobrar
+              </button>
+              <span class="text-muted text-xs" *ngIf="d.estado !== 'PENDIENTE'">Pagado</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ng-template #sinDeudas>
+        <div class="empty-results">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <p>No se encontraron deudas pendientes.</p>
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <!-- Procesar pago -->
+  <div class="card payment-section" *ngIf="deudaSeleccionada && !comprobanteEmitido">
+    <div class="payment-header">
+      <div>
+        <h3>Procesar Pago</h3>
+        <p class="text-muted">
+          Paciente: <strong>{{ deudaSeleccionada.paciente?.nombres }} {{ deudaSeleccionada.paciente?.apellidos }}</strong>
+          | Concepto: {{ deudaSeleccionada.concepto }}
+        </p>
+      </div>
+      <div class="total-amount">
+        <h2>S/ {{ deudaSeleccionada.monto | number:'1.2-2' }}</h2>
+      </div>
+    </div>
+
+    <div class="payment-row">
+      <div class="payment-col">
+        <label class="form-label">Tipo de Comprobante</label>
+        <div class="payment-methods-grid">
+          <div class="payment-card" [class.active]="tipoComprobante === 'BOLETA'" (click)="tipoComprobante = 'BOLETA'">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span>Boleta</span>
+          </div>
+          <div class="payment-card" [class.active]="tipoComprobante === 'FACTURA'" (click)="tipoComprobante = 'FACTURA'">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Factura</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="payment-col">
+        <label class="form-label">Medio de Pago</label>
+        <div class="payment-methods-grid">
+          <div class="payment-card" [class.active]="medioPago === 'EFECTIVO'" (click)="medioPago = 'EFECTIVO'">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+            <span>Efectivo</span>
+          </div>
+          <div class="payment-card" [class.active]="medioPago === 'TARJETA'" (click)="medioPago = 'TARJETA'">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span>Tarjeta</span>
+          </div>
+          <div class="payment-card" [class.active]="medioPago === 'TRANSFERENCIA'" (click)="medioPago = 'TRANSFERENCIA'">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>Yape/Plin</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-message mt-sm" *ngIf="errorPago">{{ errorPago }}</div>
+
+    <div class="action-footer">
+      <button class="btn-secondary" (click)="cancelarPago()">Cancelar</button>
+      <button class="btn-primary btn-large" (click)="procesarPago()" [disabled]="procesando">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><polyline points="20 6 9 17 4 12"/></svg>
+        {{ procesando ? 'Procesando...' : 'Generar Comprobante' }}
+      </button>
+    </div>
+  </div>
+
+</div>

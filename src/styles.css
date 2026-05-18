@@ -1,0 +1,30 @@
+@import "bootstrap/dist/css/bootstrap.min.css"; 
+:root {
+  --brand-primary: #319795;
+  --brand-hover: #2c7a7b;
+  --brand-light: rgba(49, 151, 149, 0.2);
+
+  --bg-app: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-muted: #edf2f7;
+
+  --text-main: #2d3748;
+  --text-secondary: #4a5568;
+  --text-muted: #718096;
+
+  --border-light: #e2e8f0;
+  --border-input: #cbd5e0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  background-color: var(--bg-app);
+  font-family: 'Inter', sans-serif;
+}

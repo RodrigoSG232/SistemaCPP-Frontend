@@ -1,0 +1,11 @@
+.admin-page {
+  padding: 2rem;
+}
+
+.admin-card {
+  margin-top: 1rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}

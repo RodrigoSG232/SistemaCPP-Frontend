@@ -1,0 +1,297 @@
+<div class="recepcion-container">
+
+  <!-- ═══════════ PANEL TICKETS ═══════════ -->
+  <aside class="ticket-panel">
+    <div class="ticket-header">
+      <h2>Ticket de Pacientes</h2>
+      <button class="btn-outline-small" (click)="emitirTicket()">+ Emitir</button>
+    </div>
+
+    <div class="ticket-actual-card" *ngIf="ticketActual; else sinAtencion">
+      <span>Atendiendo ahora:</span>
+      <h1>{{ ticketActual.numero }}</h1>
+      <p *ngIf="ticketActual.pacienteNombre" class="ticket-paciente-name">
+        {{ ticketActual.pacienteNombre }}
+      </p>
+      <button class="btn-primary" (click)="finalizarAtencion()">Finalizar Atención</button>
+    </div>
+    <ng-template #sinAtencion>
+      <div class="ticket-vacio-card">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <p>Sin atención activa</p>
+      </div>
+    </ng-template>
+
+    <div class="ticket-queue">
+      <h3>Cola de espera ({{ colaTickets.length }})</h3>
+      <div *ngIf="loadingTickets" class="loading-small">Cargando...</div>
+      <div *ngIf="!loadingTickets && colaTickets.length === 0" class="empty-queue">Sin pacientes en espera</div>
+      <div class="queue-item" *ngFor="let t of colaTickets">
+        <div class="ticket-info">
+          <strong>{{ t.numero }}</strong>
+          <span class="text-muted text-xs">{{ t.fechaEmision | date:'HH:mm' }}</span>
+        </div>
+        <button class="btn-outline-small" (click)="llamarTicket(t)">Llamar</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════ PANEL PRINCIPAL ═══════════ -->
+  <main class="gestion-panel">
+
+    <!-- ── Vista Inicio ── -->
+    <div *ngIf="vistaActual === 'inicio'">
+      <div class="gestion-header">
+        <h3>{{ fechaHoy | titlecase }}</h3>
+        <p class="text-muted">Seleccione una opción para continuar con la atención</p>
+      </div>
+      <div class="action-cards-grid">
+        <div class="action-card" (click)="irAHistoria()" role="button">
+          <div class="action-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"/><polyline points="14 2 14 8 20 8"/><path d="M2 15h10"/><path d="m9 18 3-3-3-3"/></svg>
+          </div>
+          <div class="action-content">
+            <h4>Historia Clínica</h4>
+            <p>Buscar paciente existente o aperturar una nueva historia clínica.</p>
+          </div>
+        </div>
+        <div class="action-card" (click)="irAAgendarCita()" role="button">
+          <div class="action-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="action-content">
+            <h4>Agendar Cita</h4>
+            <p>Asignar especialidad, psicólogo y generar orden de pago.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Vista Historia Clínica ── -->
+    <div *ngIf="vistaActual === 'historia'">
+      <div class="gestion-header">
+        <div class="header-row">
+          <button class="btn-back" (click)="volver()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Volver
+          </button>
+          <h3>Historia Clínica</h3>
+        </div>
+      </div>
+
+      <div class="card mb-lg" *ngIf="!pacienteSeleccionado && !mostrarFormNuevoPaciente">
+        <h4>Buscar Paciente</h4>
+        <div class="search-row">
+          <div class="input-with-icon flex-1">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" [(ngModel)]="busquedaPaciente" placeholder="DNI, nombre o apellido..."
+              (keyup.enter)="buscarPaciente()">
+          </div>
+          <button class="btn-primary" (click)="buscarPaciente()" [disabled]="buscando">
+            {{ buscando ? 'Buscando...' : 'Buscar' }}
+          </button>
+          <button class="btn-secondary" (click)="abrirFormNuevoPaciente()">+ Nuevo Paciente</button>
+        </div>
+
+        <div class="table-responsive mt-md" *ngIf="resultadosBusqueda.length > 0">
+          <table class="data-table">
+            <thead><tr><th>Historia</th><th>Nombres</th><th>DNI</th><th>Teléfono</th><th></th></tr></thead>
+            <tbody>
+              <tr *ngFor="let p of resultadosBusqueda">
+                <td><span class="badge">{{ p.numeroHistoria }}</span></td>
+                <td><strong>{{ p.nombres }} {{ p.apellidos }}</strong></td>
+                <td>{{ p.dni }}</td>
+                <td>{{ p.telefono || '—' }}</td>
+                <td>
+                  <button class="btn-outline-small" (click)="seleccionarPaciente(p)">Ver</button>
+                  <button class="btn-primary btn-xs ml-sm" (click)="seleccionarPaciente(p); irAAgendarCita(p)">Agendar Cita</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="text-muted mt-sm" *ngIf="resultadosBusqueda.length === 0 && !buscando && busquedaPaciente">
+          No se encontraron resultados.
+        </p>
+      </div>
+
+      <!-- Formulario nuevo paciente -->
+      <div class="card mb-lg" *ngIf="mostrarFormNuevoPaciente">
+        <div class="card-title-row">
+          <h4>Nuevo Paciente</h4>
+          <button class="btn-back" (click)="mostrarFormNuevoPaciente = false">✕ Cancelar</button>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label>Nombres *</label>
+            <input type="text" [(ngModel)]="nuevoPaciente.nombres" placeholder="Nombres">
+          </div>
+          <div class="form-group">
+            <label>Apellidos *</label>
+            <input type="text" [(ngModel)]="nuevoPaciente.apellidos" placeholder="Apellidos">
+          </div>
+          <div class="form-group">
+            <label>DNI *</label>
+            <input type="text" [(ngModel)]="nuevoPaciente.dni" placeholder="12345678" maxlength="8">
+          </div>
+          <div class="form-group">
+            <label>Fecha de Nacimiento</label>
+            <input type="date" [(ngModel)]="nuevoPaciente.fechaNacimiento">
+          </div>
+          <div class="form-group">
+            <label>Teléfono</label>
+            <input type="text" [(ngModel)]="nuevoPaciente.telefono" placeholder="999888777">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="nuevoPaciente.email" placeholder="correo@ejemplo.com">
+          </div>
+          <div class="form-group span-2">
+            <label>Dirección</label>
+            <input type="text" [(ngModel)]="nuevoPaciente.direccion" placeholder="Av. ...">
+          </div>
+        </div>
+        <div class="error-message" *ngIf="errorPaciente">{{ errorPaciente }}</div>
+        <div class="action-footer">
+          <button class="btn-primary btn-large" (click)="guardarNuevoPaciente()" [disabled]="guardandoPaciente">
+            {{ guardandoPaciente ? 'Guardando...' : 'Guardar Historia Clínica' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Detalle paciente seleccionado -->
+      <div *ngIf="pacienteSeleccionado">
+        <div class="card paciente-detail mb-md">
+          <div class="paciente-detail-header">
+            <div>
+              <h3>{{ pacienteSeleccionado.nombres }} {{ pacienteSeleccionado.apellidos }}</h3>
+              <span class="badge">{{ pacienteSeleccionado.numeroHistoria }}</span>
+            </div>
+            <div class="paciente-meta">
+              <span><strong>DNI:</strong> {{ pacienteSeleccionado.dni }}</span>
+              <span><strong>Tel:</strong> {{ pacienteSeleccionado.telefono || '—' }}</span>
+              <span><strong>Apertura:</strong> {{ pacienteSeleccionado.fechaApertura | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <button class="btn-primary" (click)="irAAgendarCita(pacienteSeleccionado)">+ Agendar Cita</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Historial de Citas</h4>
+          <div class="table-responsive">
+            <table class="data-table" *ngIf="citasPaciente.length > 0; else sinCitas">
+              <thead><tr><th>Fecha</th><th>Hora</th><th>Especialidad</th><th>Psicólogo</th><th>Estado</th></tr></thead>
+              <tbody>
+                <tr *ngFor="let c of citasPaciente">
+                  <td>{{ c.fechaCita | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ c.horaCita }}</td>
+                  <td>{{ c.especialidad?.nombre }}</td>
+                  <td>{{ c.psicologo?.nombres }} {{ c.psicologo?.apellidos }}</td>
+                  <td><span class="estado-badge estado-{{ c.estado | lowercase }}">{{ c.estado }}</span></td>
+                </tr>
+              </tbody>
+            </table>
+            <ng-template #sinCitas><p class="text-muted mt-sm">Sin citas registradas.</p></ng-template>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Vista Agendar Cita ── -->
+    <div *ngIf="vistaActual === 'cita'">
+      <div class="gestion-header">
+        <div class="header-row">
+          <button class="btn-back" (click)="volver()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Volver
+          </button>
+          <h3>Agendar Cita</h3>
+        </div>
+      </div>
+
+      <div class="card" *ngIf="!mensajeCita">
+        <div class="form-grid-2">
+          <div class="form-group span-2" *ngIf="!cita.pacienteId">
+            <label>DNI del Paciente *</label>
+            <div class="search-row">
+              <input type="text" [(ngModel)]="busquedaPaciente" placeholder="Ingrese DNI...">
+              <button class="btn-primary" (click)="buscarPaciente()">Buscar</button>
+            </div>
+            <div *ngIf="resultadosBusqueda.length > 0" class="dropdown-results">
+              <div class="dropdown-item" *ngFor="let p of resultadosBusqueda" (click)="cita.pacienteId = p.id; busquedaPaciente = p.nombres + ' ' + p.apellidos; resultadosBusqueda = []">
+                <strong>{{ p.nombres }} {{ p.apellidos }}</strong> — DNI: {{ p.dni }}
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group span-2" *ngIf="cita.pacienteId">
+            <label>Paciente</label>
+            <div class="selected-patient">
+              <span>{{ busquedaPaciente || 'Paciente seleccionado (ID: ' + cita.pacienteId + ')' }}</span>
+              <button class="btn-back" (click)="cita.pacienteId = null">Cambiar</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Especialidad *</label>
+            <select [(ngModel)]="cita.especialidadId" (change)="onEspecialidadChange()">
+              <option [ngValue]="null">Seleccionar...</option>
+              <option *ngFor="let e of especialidades" [ngValue]="e.id">
+                {{ e.nombre }} — S/ {{ e.tarifa }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Psicólogo *</label>
+            <select [(ngModel)]="cita.psicologoId" (change)="onPsicologoOFechaChange()" [disabled]="!cita.especialidadId">
+              <option [ngValue]="null">Seleccionar...</option>
+              <option *ngFor="let p of psicologos" [ngValue]="p.id">
+                {{ p.nombres }} {{ p.apellidos }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fecha *</label>
+            <input type="date" [(ngModel)]="cita.fecha" (change)="onPsicologoOFechaChange()"
+              [min]="fechaHoy" [disabled]="!cita.psicologoId">
+          </div>
+
+          <div class="form-group">
+            <label>Hora *</label>
+            <select [(ngModel)]="cita.hora" [disabled]="horasDisponibles.length === 0">
+              <option value="">Seleccionar...</option>
+              <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}</option>
+            </select>
+            <small class="text-muted" *ngIf="cita.psicologoId && cita.fecha && horasDisponibles.length === 0">
+              Sin horas disponibles ese día.
+            </small>
+          </div>
+        </div>
+
+        <div class="error-message mt-md" *ngIf="errorCita">{{ errorCita }}</div>
+
+        <div class="action-footer">
+          <button class="btn-secondary" (click)="volver()">Cancelar</button>
+          <button class="btn-primary btn-large" (click)="registrarCita()" [disabled]="agendando">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            {{ agendando ? 'Registrando...' : 'Confirmar Cita y Generar Deuda' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirmación -->
+      <div class="card success-card" *ngIf="mensajeCita">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <h3>¡Cita Registrada!</h3>
+        <p>{{ mensajeCita }}</p>
+        <div class="action-footer">
+          <button class="btn-primary" (click)="irAAgendarCita()">Nueva Cita</button>
+          <button class="btn-secondary" (click)="volver()">Inicio</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>

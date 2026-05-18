@@ -1,0 +1,107 @@
+<app-header></app-header>
+
+<main class="landing-home">
+
+  <!-- Hero principal -->
+  <section class="home-hero" id="inicio">
+    <div class="container home-hero__container">
+      <div class="home-hero__content">
+
+        <h1>
+          Atención psicológica profesional y personalizada cerca de ti.
+        </h1>
+
+        <div class="home-hero__actions">
+          <a href="#especialidades" class="home-hero__button home-hero__button--primary">
+            Conoce Nuestras Especialidades
+          </a>
+
+          <a href="#sedes" class="home-hero__button home-hero__button--secondary">
+            Ver Sedes
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección introductoria -->
+  <section class="home-intro">
+    <div class="container home-intro__container">
+      <h2>Clínica Psicología del Perú</h2>
+
+      <p class="home-intro__subtitle">
+        Psicólogos en Perú: consulta psicológica, evaluación psicológica y terapia.
+      </p>
+
+      <p class="home-intro__text">
+        Desde el 2012 brindamos
+        <strong>atención psicológica profesional en Perú</strong>,
+        de forma presencial, para
+        <strong>niños, adolescentes, adultos, parejas y familias.</strong>
+      </p>
+
+      <p class="home-intro__text">
+        Contamos con
+        <strong>psicólogos altamente capacitados</strong>
+        que ofrecen
+        <strong>consulta psicológica, evaluación psicológica y tratamiento psicológico</strong>
+        para ansiedad, depresión, problemas conductuales y familiares.
+      </p>
+    </div>
+  </section>
+
+  <!-- Sección especialidades -->
+  <section class="home-specialties" id="especialidades">
+    <div class="container home-specialties__container">
+
+      <h2>Conoce nuestras especialidades</h2>
+
+      <div class="home-carousel">
+
+        <button
+          type="button"
+          class="home-carousel__control home-carousel__control--left"
+          aria-label="Ver especialidad anterior"
+          (click)="previousSpecialty()"
+        >
+          ‹
+        </button>
+
+        <div class="row g-4 justify-content-center home-carousel__cards">
+          <div
+            class="col-12 col-md-6 col-lg-4"
+            *ngFor="let specialty of visibleSpecialties"
+          >
+            <article class="specialty-card">
+              <img
+                [src]="specialty.image"
+                [alt]="specialty.title"
+                class="specialty-card__image"
+              />
+
+              <div class="specialty-card__body">
+                <h3>{{ specialty.title }}</h3>
+                <p>{{ specialty.description }}</p>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          class="home-carousel__control home-carousel__control--right"
+          aria-label="Ver siguiente especialidad"
+          (click)="nextSpecialty()"
+        >
+          ›
+        </button>
+
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<app-footer></app-footer>

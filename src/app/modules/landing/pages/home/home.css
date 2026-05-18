@@ -1,0 +1,353 @@
+.landing-home {
+  background-color: #ffffff;
+  padding-top: 90px;
+}
+
+/* =========================
+   Hero principal
+========================= */
+
+.home-hero {
+  min-height: 330px;
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.75) 32%,
+      rgba(255, 255, 255, 0.18) 68%,
+      rgba(255, 255, 255, 0.04) 100%
+    ),
+    url('/assets/landing/hero_psicologia.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  display: flex;
+  align-items: center;
+}
+
+.home-hero__container {
+  max-width: 1140px;
+}
+
+.home-hero__content {
+  max-width: 430px;
+  padding: 2rem 0;
+}
+
+.home-hero__content h1 {
+  color: #263f60;
+  font-size: 2.35rem;
+  font-weight: 900;
+  line-height: 1.08;
+  letter-spacing: 0.03rem;
+  margin-bottom: 1.8rem;
+}
+
+.home-hero__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  width: 310px;
+  max-width: 100%;
+}
+
+.home-hero__button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02rem;
+  transition: all 0.2s ease;
+}
+
+.home-hero__button--primary {
+  background-color: #6fa4a8;
+  color: #ffffff;
+}
+
+.home-hero__button--primary:hover {
+  background-color: #5b9095;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+.home-hero__button--secondary {
+  background-color: #274a78;
+  color: #ffffff;
+}
+
+.home-hero__button--secondary:hover {
+  background-color: #1f3d65;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   Sección introductoria
+========================= */
+
+.home-intro {
+  background-color: #ffffff;
+  padding: 3.2rem 0 3.5rem;
+  text-align: center;
+}
+
+.home-intro__container {
+  max-width: 850px;
+}
+
+.home-intro h2 {
+  color: #273f63;
+  font-size: 2.65rem;
+  font-weight: 800;
+  letter-spacing: 0.03rem;
+  margin-bottom: 0.8rem;
+}
+
+.home-intro__subtitle {
+  color: #3f4756;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 1.6rem;
+}
+
+.home-intro__text {
+  color: #3f4756;
+  font-size: 1rem;
+  line-height: 1.7;
+  margin: 0 auto 1.2rem;
+  max-width: 760px;
+}
+
+.home-intro__text strong {
+  font-weight: 800;
+}
+
+/* =========================
+   Sección especialidades
+========================= */
+
+.home-specialties {
+  background-color: #f5f6f8;
+  padding: 3rem 0 4rem;
+}
+
+.home-specialties__container {
+  max-width: 1030px;
+}
+
+.home-specialties h2 {
+  color: #273f63;
+  text-align: center;
+  font-size: 1.85rem;
+  font-weight: 800;
+  margin-bottom: 3rem;
+}
+
+/* =========================
+   Carrusel
+========================= */
+
+.home-carousel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.home-carousel__cards {
+  width: 100%;
+  padding: 0 2.8rem;
+}
+
+.home-carousel__control {
+  position: absolute;
+  top: 45%;
+  transform: translateY(-50%);
+  border: none;
+  background-color: transparent;
+  color: #3f4756;
+  font-size: 3rem;
+  font-weight: 300;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.home-carousel__control:hover {
+  color: #638f96;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.home-carousel__control--left {
+  left: 0;
+}
+
+.home-carousel__control--right {
+  right: 0;
+}
+
+/* =========================
+   Cards
+========================= */
+
+.specialty-card {
+  background-color: #ffffff;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  height: 100%;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.specialty-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.specialty-card__image {
+  width: 100%;
+  height: 145px;
+  object-fit: cover;
+  display: block;
+  background-color: #d9dee5;
+}
+
+.specialty-card__body {
+  padding: 1.1rem 1.05rem 1.25rem;
+}
+
+.specialty-card__body h3 {
+  color: #1f2937;
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 0.7rem;
+}
+
+.specialty-card__body p {
+  color: #4b5563;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* =========================
+   Responsive
+========================= */
+
+@media (max-width: 991px) {
+  .home-hero {
+    min-height: 300px;
+    background-position: center;
+  }
+
+  .home-hero__content h1 {
+    font-size: 2rem;
+  }
+
+  .home-intro h2 {
+    font-size: 2.3rem;
+  }
+
+  .home-specialties h2 {
+    font-size: 1.55rem;
+  }
+
+  .home-carousel__cards {
+    padding: 0 2.2rem;
+  }
+
+  .home-carousel__control {
+    font-size: 2.6rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .home-hero {
+    min-height: auto;
+    padding: 3rem 0;
+    background-image:
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.94) 0%,
+        rgba(255, 255, 255, 0.86) 100%
+      ),
+      url('/assets/landing/hero_psicologia.png');
+  }
+
+  .home-hero__content {
+    max-width: 100%;
+  }
+
+  .home-hero__content h1 {
+    font-size: 1.85rem;
+  }
+
+  .home-hero__actions {
+    width: 100%;
+  }
+
+  .home-intro {
+    padding: 3rem 0;
+  }
+
+  .home-intro h2 {
+    font-size: 2rem;
+  }
+
+  .home-intro__text {
+    font-size: 0.95rem;
+  }
+
+  .home-specialties {
+    padding: 2.6rem 0 3.3rem;
+  }
+
+  .home-carousel__cards {
+    padding: 0 2rem;
+  }
+
+  .home-carousel__control--left {
+    left: -0.4rem;
+  }
+
+  .home-carousel__control--right {
+    right: -0.4rem;
+  }
+}
+
+@media (max-width: 575px) {
+  .home-hero__content h1 {
+    font-size: 1.6rem;
+  }
+
+  .home-hero__button {
+    font-size: 0.88rem;
+  }
+
+  .home-intro h2 {
+    font-size: 1.7rem;
+  }
+
+  .home-intro__subtitle {
+    font-size: 0.92rem;
+  }
+
+  .home-specialties h2 {
+    font-size: 1.35rem;
+    margin-bottom: 2rem;
+  }
+
+  .home-carousel__cards {
+    padding: 0 1.8rem;
+  }
+
+  .specialty-card__image {
+    height: 170px;
+  }
+}

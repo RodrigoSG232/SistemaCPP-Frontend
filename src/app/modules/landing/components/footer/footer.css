@@ -1,0 +1,233 @@
+.landing-footer {
+  background-color: #efefef;
+  color: #2d3440;
+  padding: 3.2rem 0 1.1rem;
+}
+
+.landing-footer__container {
+  max-width: 1140px;
+}
+
+/* Distribución superior */
+.landing-footer__top {
+  margin-bottom: 2rem;
+}
+
+/* Logo / Marca */
+.landing-footer__brand {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding-left: 4.5rem;
+}
+
+.landing-footer__brand-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.landing-footer__logo-icon {
+  width: 125px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.landing-footer__brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.95;
+  text-align: center;
+}
+
+.landing-footer__brand-text span {
+  color: #263f60;
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.08rem;
+}
+
+.landing-footer__brand-text small {
+  color: #6fa4a8;
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.12rem;
+  margin-top: 0.25rem;
+}
+
+/* Secciones */
+.landing-footer__section {
+  padding-top: 0.8rem;
+}
+
+.landing-footer__section--map {
+  padding-left: 2.5rem;
+}
+
+.landing-footer__section--contact {
+  padding-left: 2.5rem;
+}
+
+.landing-footer__title {
+  display: inline-block;
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 4px solid #75a5a8;
+  color: #242b36;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12rem;
+}
+
+/* Mapa de sitio */
+.landing-footer__links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.landing-footer__links li {
+  margin-bottom: 0.45rem;
+}
+
+.landing-footer__links a {
+  color: #3d4450;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 400;
+  transition: color 0.2s ease;
+}
+
+.landing-footer__links a:hover {
+  color: #5f8e94;
+}
+
+/* Contacto */
+.landing-footer__contact {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.landing-footer__contact li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  color: #3d4450;
+  font-size: 0.95rem;
+}
+
+.landing-footer__contact-icon {
+  color: #2d3440;
+  width: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Redes sociales */
+.landing-footer__social {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.landing-footer__social a {
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background-color: #6fa4a8;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.landing-footer__social a:hover {
+  background-color: #557f85;
+  transform: translateY(-2px);
+}
+
+/* Línea inferior */
+.landing-footer__divider {
+  height: 1px;
+  width: 100%;
+  background-color: #2d3440;
+  opacity: 0.75;
+  margin-bottom: 1rem;
+}
+
+/* Copyright */
+.landing-footer__copy {
+  margin: 0;
+  text-align: center;
+  color: #697386;
+  font-size: 0.85rem;
+  letter-spacing: 0.02rem;
+}
+
+/* Responsive tablets */
+@media (max-width: 991px) {
+  .landing-footer__brand {
+    justify-content: center;
+    padding-left: 0;
+    margin-bottom: 2rem;
+  }
+
+  .landing-footer__section {
+    text-align: center;
+    padding-left: 0;
+  }
+
+  .landing-footer__section--map,
+  .landing-footer__section--contact {
+    padding-left: 0;
+  }
+
+  .landing-footer__contact li {
+    justify-content: center;
+  }
+
+  .landing-footer__social {
+    justify-content: center;
+  }
+}
+
+/* Responsive celulares */
+@media (max-width: 575px) {
+  .landing-footer {
+    padding: 2.8rem 0 1rem;
+  }
+
+  .landing-footer__logo-icon {
+    width: 105px;
+  }
+
+  .landing-footer__brand-text span {
+    font-size: 1.15rem;
+  }
+
+  .landing-footer__brand-text small {
+    font-size: 0.95rem;
+  }
+
+  .landing-footer__title {
+    font-size: 0.95rem;
+  }
+
+  .landing-footer__copy {
+    font-size: 0.78rem;
+  }
+}

@@ -1,0 +1,134 @@
+.landing-header {
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.landing-header__container {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+}
+
+.landing-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+}
+
+.landing-header__logo-icon {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.landing-header__brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+}
+
+.landing-header__brand-text span {
+  color: #253f5f;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.08rem;
+}
+
+.landing-header__brand-text small {
+  color: #6b9da1;
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.09rem;
+}
+
+.landing-header__menu {
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+}
+
+.landing-header__nav {
+  gap: 1.6rem;
+}
+
+.landing-header__nav .nav-link {
+  color: #3f4756;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  position: relative;
+}
+
+.landing-header__nav .nav-link:hover,
+.landing-header__nav .nav-link.active {
+  color: #2b4a68;
+}
+
+.landing-header__nav .nav-link.active::after,
+.landing-header__nav .nav-link:hover::after {
+  content: "";
+  width: 100%;
+  height: 2px;
+  background-color: #6ea1a5;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.landing-header__button {
+  background-color: #638f96;
+  color: #ffffff;
+  border-radius: 6px;
+  padding: 0.65rem 1.35rem;
+  font-weight: 700;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.landing-header__button:hover {
+  background-color: #4f7d84;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 991px) {
+  .landing-header__container {
+    min-height: auto;
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
+
+  .landing-header__logo-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .landing-header__brand-text span {
+    font-size: 0.9rem;
+  }
+
+  .landing-header__brand-text small {
+    font-size: 0.75rem;
+  }
+
+  .landing-header__menu {
+    align-items: flex-start;
+    gap: 1rem;
+    padding-top: 1rem;
+  }
+
+  .landing-header__nav {
+    gap: 0.4rem;
+  }
+
+  .landing-header__button {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
