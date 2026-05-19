@@ -25,7 +25,6 @@ export class LoginComponent {
   }
 
   iniciarSesion(): void {
-    // 1. Validación inicial
     if (!this.usuario || !this.contrasena) {
       this.errorMessage = 'Complete usuario y contraseña.';
       return;
