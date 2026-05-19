@@ -51,4 +51,8 @@ export class LoginComponent {
       }
     });
   }
+
+  volverInicio(): void {
+  this.router.navigate(['/']);
+}
 }

@@ -251,3 +251,23 @@
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
+
+.btn-back {
+  background: transparent;
+  border: none;
+  color: #2f8f9d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 18px;
+  padding: 0;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-back:hover {
+  opacity: 0.75;
+  transform: translateX(-2px);
+}

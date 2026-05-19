@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RecepcionService } from '../../services/recepcion.service';
 import { finalize } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 type Vista = 'inicio' | 'historia' | 'cita';
 
@@ -33,6 +34,9 @@ export class Recepcion implements OnInit {
   pacienteSeleccionado: any = null;
   citasPaciente: any[] = [];
   buscando = false;
+  
+  // Bandera para mostrar el error "No hay resultados" solo después de buscar
+  busquedaRealizada = false;
 
   mostrarFormNuevoPaciente = false;
   nuevoPaciente = {
@@ -42,6 +46,7 @@ export class Recepcion implements OnInit {
     fechaNacimiento: '',
     telefono: '',
     email: '',
+    sexo: '',
     direccion: ''
   };
   guardandoPaciente = false;
@@ -51,12 +56,14 @@ export class Recepcion implements OnInit {
   psicologos: any[] = [];
   horasDisponibles: string[] = [];
 
+  // 🟢 ACTUALIZADO: Se agregó el campo 'consultorio' para el nuevo diseño
   cita = {
     pacienteId: null as number | null,
     especialidadId: null as number | null,
     psicologoId: null as number | null,
     fecha: '',
     hora: '',
+    consultorio: '', 
     ticketId: null as number | null
   };
 
@@ -71,13 +78,14 @@ export class Recepcion implements OnInit {
 
   ngOnInit() {
     this.cargarTickets();
+    // (Se eliminó la escucha reactiva del teclado de aquí)
   }
 
   cargarTickets() {
     this.loadingTickets = true;
     this.cdr.detectChanges();
 
-    this.recepcionService.listarTickets('EN_ESPERA').subscribe({
+    this.recepcionService.listarTickets('ESPERA').subscribe({
       next: (tickets) => {
         this.colaTickets = tickets.map(t => ({
           ...t,
@@ -112,7 +120,7 @@ export class Recepcion implements OnInit {
 
   llamarTicket(ticket: any) {
     if (this.ticketActual) {
-      this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'ATENDIDO').subscribe(() => {
+      this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'FINALIZADO').subscribe(() => {
         this.ticketActual = null;
         this.llamarTicketDirecto(ticket);
       });
@@ -132,7 +140,7 @@ export class Recepcion implements OnInit {
   finalizarAtencion() {
     if (!this.ticketActual) return;
 
-    this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'ATENDIDO').subscribe(() => {
+    this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'EN_ATENCION').subscribe(() => {
       this.ticketActual = null;
       this.cargarTickets();
     });
@@ -143,14 +151,22 @@ export class Recepcion implements OnInit {
     this.pacienteSeleccionado = null;
     this.resultadosBusqueda = [];
     this.busquedaPaciente = '';
+    this.busquedaRealizada = false;
     this.mostrarFormNuevoPaciente = false;
     this.cdr.detectChanges();
   }
 
   buscarPaciente() {
-    if (!this.busquedaPaciente.trim()) return;
+    // 🟢 LÓGICA MANUAL: Limpiamos si está vacío
+    if (!this.busquedaPaciente.trim()) {
+      this.resultadosBusqueda = [];
+      this.busquedaRealizada = false;
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.buscando = true;
+    this.busquedaRealizada = false; // Ocultamos errores viejos antes de buscar
     this.cdr.detectChanges();
 
     this.recepcionService.buscarPacientes(this.busquedaPaciente)
@@ -161,6 +177,7 @@ export class Recepcion implements OnInit {
       .subscribe({
         next: (res) => {
           this.resultadosBusqueda = res;
+          this.busquedaRealizada = true; // Solo activamos la bandera al recibir respuesta
           this.cdr.detectChanges();
         }
       });
@@ -187,6 +204,7 @@ export class Recepcion implements OnInit {
       fechaNacimiento: '',
       telefono: '',
       email: '',
+      sexo: '',
       direccion: ''
     };
     this.cdr.detectChanges();
@@ -225,6 +243,7 @@ export class Recepcion implements OnInit {
       psicologoId: null,
       fecha: '',
       hora: '',
+      consultorio: '', // 🟢 Reiniciamos el consultorio
       ticketId: this.ticketActual?.id || null
     };
 
@@ -265,7 +284,8 @@ export class Recepcion implements OnInit {
   }
 
   registrarCita() {
-    if (!this.cita.pacienteId || !this.cita.especialidadId || !this.cita.psicologoId || !this.cita.fecha || !this.cita.hora) {
+    // 🟢 VALIDACIÓN ACTUALIZADA: Exige el consultorio
+    if (!this.cita.pacienteId || !this.cita.especialidadId || !this.cita.psicologoId || !this.cita.fecha || !this.cita.hora || !this.cita.consultorio) {
       this.errorCita = 'Complete todos los campos.';
       return;
     }

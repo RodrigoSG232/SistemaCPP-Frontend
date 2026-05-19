@@ -4,6 +4,7 @@
 
   <div class="left-section">
     <div class="blob-shape"></div>
+
     <img
       src="/assets/images/doctor.png"
       alt="Profesional de salud"
@@ -13,30 +14,49 @@
 
   <div class="login-card">
 
-  <div class="brand">
-    <div class="logo-wrapper">
+    <div class="brand">
+      <div class="logo-wrapper">
 
-      <img 
-        src="/assets/images/logo-clinica.png" 
-        alt="Clínicas Psicología del Perú"
-        class="logo-img"
-      >
+        <img 
+          src="/assets/images/logo-clinica.png" 
+          alt="Clínicas Psicología del Perú"
+          class="logo-img"
+        >
 
+      </div>
     </div>
-  </div>
+
+    <!-- BOTÓN REGRESAR -->
+    <button class="btn-back" (click)="volverInicio()">
+      ← Regresar
+    </button>
 
     <div class="welcome-block">
       <h1 class="welcome-title">BIENVENIDO</h1>
     </div>
 
-    <!-- Formulario -->
+    <!-- Usuario -->
     <div class="form-group">
       <label for="usuario">Usuario</label>
+
       <div class="input-wrapper">
-        <svg class="input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M2.5 17.5C2.5 14.186 5.186 11.5 8.5 11.5h3c3.314 0 6 2.686 6 6" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="10" cy="6.5" r="3.5" stroke="#9CA3AF" stroke-width="1.5"/>
+
+        <svg class="input-icon" viewBox="0 0 20 20" fill="none">
+          <path
+            d="M2.5 17.5C2.5 14.186 5.186 11.5 8.5 11.5h3c3.314 0 6 2.686 6 6"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+          <circle
+            cx="10"
+            cy="6.5"
+            r="3.5"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+          />
         </svg>
+
         <input
           id="usuario"
           type="text"
@@ -45,16 +65,34 @@
           class="form-input"
           autocomplete="username"
         />
+
       </div>
     </div>
 
+    <!-- Contraseña -->
     <div class="form-group">
       <label for="contrasena">Contraseña</label>
+
       <div class="input-wrapper">
-        <svg class="input-icon" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3.5" y="8.5" width="13" height="9" rx="1.5" stroke="#9CA3AF" stroke-width="1.5"/>
-          <path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+
+        <svg class="input-icon" viewBox="0 0 20 20" fill="none">
+          <rect
+            x="3.5"
+            y="8.5"
+            width="13"
+            height="9"
+            rx="1.5"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+          />
+          <path
+            d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"
+            stroke="#9CA3AF"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
         </svg>
+
         <input
           id="contrasena"
           [type]="mostrarContrasena ? 'text' : 'password'"
@@ -63,32 +101,89 @@
           class="form-input"
           autocomplete="current-password"
         />
-        <button type="button" class="toggle-pass" (click)="toggleContrasena()" tabindex="-1">
-          <svg *ngIf="!mostrarContrasena" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z" stroke="#9CA3AF" stroke-width="1.5"/>
-            <circle cx="10" cy="10" r="2.5" stroke="#9CA3AF" stroke-width="1.5"/>
+
+        <button
+          type="button"
+          class="toggle-pass"
+          (click)="toggleContrasena()"
+          tabindex="-1"
+        >
+
+          <svg
+            *ngIf="!mostrarContrasena"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M2 10s3-6 8-6 8 6 8 6-3 6-8 6-8-6-8-6z"
+              stroke="#9CA3AF"
+              stroke-width="1.5"
+            />
+            <circle
+              cx="10"
+              cy="10"
+              r="2.5"
+              stroke="#9CA3AF"
+              stroke-width="1.5"
+            />
           </svg>
-          <svg *ngIf="mostrarContrasena" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 3l14 14M8.46 8.52A2.5 2.5 0 0010 12.5a2.5 2.5 0 003.54-3.54M6.1 6.16C4.2 7.3 2.8 9 2.8 10s2.9 5.5 7.2 5.5c1.5 0 2.8-.4 3.9-1.05M13 7.5C14.8 8.6 16.5 10 17.2 10c0 0-2.9 5.5-7.2 5.5" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+
+          <svg
+            *ngIf="mostrarContrasena"
+            viewBox="0 0 20 20"
+            fill="none"
+          >
+            <path
+              d="M3 3l14 14M8.46 8.52A2.5 2.5 0 0010 12.5a2.5 2.5 0 003.54-3.54M6.1 6.16C4.2 7.3 2.8 9 2.8 10s2.9 5.5 7.2 5.5c1.5 0 2.8-.4 3.9-1.05M13 7.5C14.8 8.6 16.5 10 17.2 10c0 0-2.9 5.5-7.2 5.5"
+              stroke="#9CA3AF"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
           </svg>
+
         </button>
+
       </div>
     </div>
 
+    <!-- BOTÓN LOGIN -->
     <button
       class="btn-login"
       [class.loading]="cargando"
       [disabled]="cargando || !usuario || !contrasena"
       (click)="iniciarSesion()"
     >
-      <span *ngIf="!cargando">Iniciar Sesión</span>
-      <span *ngIf="cargando" class="spinner-wrapper">
-        <svg class="spinner" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
-          <path d="M12 2a10 10 0 0 1 10 10" stroke="white" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-        Ingresando...
+
+      <span *ngIf="!cargando">
+        Iniciar Sesión
       </span>
+
+      <span *ngIf="cargando" class="spinner-wrapper">
+
+        <svg
+          class="spinner"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="rgba(255,255,255,0.3)"
+            stroke-width="3"
+          />
+          <path
+            d="M12 2a10 10 0 0 1 10 10"
+            stroke="white"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+        </svg>
+
+        Ingresando...
+
+      </span>
+
     </button>
 
   </div>
