@@ -83,7 +83,7 @@ export class Psicologia implements OnInit {
     this.mensajeSesion = '';
     this.errorSesion = '';
     this.mostrarHistorial = false;
-    this.cargarProceso(cita.paciente.id);
+    this.cargarProceso(cita.pacienteId);
     this.cdr.detectChanges();
   }
 
@@ -126,7 +126,7 @@ export class Psicologia implements OnInit {
     this.iniciandoProceso = true;
     this.cdr.detectChanges();
 
-    this.psicologiaService.iniciarProceso(this.citaActiva.paciente.id).subscribe({
+    this.psicologiaService.iniciarProceso(this.citaActiva.pacienteId).subscribe({
       next: (proc) => {
         this.proceso = proc;
         this.faseSeleccionada = 1;

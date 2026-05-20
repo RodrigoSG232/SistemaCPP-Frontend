@@ -21,8 +21,8 @@
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         </div>
         <div class="queue-info">
-          <strong>{{ c.paciente?.nombres }} {{ c.paciente?.apellidos }}</strong>
-          <span class="text-muted">{{ c.horaCita }} | <span class="estado-dot estado-{{ c.estado | lowercase }}">{{ c.estado | titlecase }}</span></span>
+          <strong>{{ c.paciente }}</strong>
+          <span class="text-muted">{{ c.hora }} | <span class="estado-dot estado-{{ c.estado | lowercase }}">{{ c.estado | titlecase }}</span></span>
         </div>
         <button class="btn-outline-small" *ngIf="c.estado === 'PAGADA'" (click)="$event.stopPropagation(); llamarPaciente(c)">Llamar</button>
       </div>
@@ -45,13 +45,13 @@
       <!-- Header paciente -->
       <div class="patient-header card">
         <div class="patient-title">
-          <h2>{{ citaActiva.paciente?.nombres }} {{ citaActiva.paciente?.apellidos }}</h2>
-          <span class="hc-badge">HC: {{ citaActiva.paciente?.numeroHistoria }}</span>
+          <h2>{{ citaActiva.paciente }}</h2>
+          <span class="hc-badge">HC: {{ citaActiva.pacienteHc }}</span>
           <span class="estado-badge-lg estado-{{ citaActiva.estado | lowercase }}">{{ citaActiva.estado }}</span>
         </div>
         <div class="patient-meta">
-          <span>DNI: {{ citaActiva.paciente?.dni }}</span>
-          <span>Cita: {{ citaActiva.fechaCita | date:'dd/MM/yyyy' }} {{ citaActiva.horaCita }}</span>
+          <span>DNI: {{ citaActiva.pacienteDni }}</span>
+          <span>Cita: {{ citaActiva.fecha }} {{ citaActiva.hora }}</span>
           <span>Sesiones: {{ sesiones.length }}</span>
         </div>
         <button class="btn-secondary btn-sm" (click)="mostrarHistorial = !mostrarHistorial">
