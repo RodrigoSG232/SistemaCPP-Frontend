@@ -1,0 +1,87 @@
+.recuperar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f0f4f8;
+}
+
+.recuperar-card {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.brand { text-align: center; margin-bottom: 1.5rem; }
+.brand h2 { color: #2d8a7b; margin: 0; }
+.brand p { color: #888; font-size: 0.875rem; margin: 0.25rem 0 0; }
+
+.instruccion { color: #555; font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+.form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.form-group label { font-size: 0.875rem; font-weight: 500; color: #444; }
+.form-group input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus { border-color: #2d8a7b; }
+
+.btn-primary {
+  width: 100%;
+  padding: 0.85rem;
+  background: #2d8a7b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #236b5f; }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+.btn-volver {
+  width: 100%;
+  padding: 0.6rem;
+  background: transparent;
+  color: #888;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+.btn-volver:hover { color: #2d8a7b; }
+
+.error-message {
+  background: #fff5f5;
+  color: #e53e3e;
+  padding: 0.6rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #feb2b2;
+  margin-bottom: 0.75rem;
+}
+
+.exito { text-align: center; padding: 1rem 0; }
+.exito-icon {
+  width: 60px; height: 60px;
+  background: #2d8a7b;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+}
+.exito h3 { color: #2d8a7b; margin: 0 0 0.5rem; }
+.exito p { color: #888; font-size: 0.875rem; }

@@ -1,0 +1,61 @@
+<div class="recuperar-wrapper">
+  <div class="recuperar-card">
+
+    <div class="brand">
+      <h2>Recuperar Contraseña</h2>
+      <p>Clínicas Psicología del Perú</p>
+    </div>
+
+    @if (paso === 1) {
+    <div>
+      <p class="instruccion">Ingresa tu email registrado y te enviaremos un código de verificación.</p>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" [(ngModel)]="email" placeholder="correo@ejemplo.com" [disabled]="cargando">
+      </div>
+      @if (error) {
+        <div class="error-message">{{ error }}</div>
+      }
+      <button class="btn-primary" [disabled]="cargando" (click)="solicitarCodigo()">
+        @if (!cargando) { <span>Enviar Código</span> }
+        @if (cargando) { <span>Enviando...</span> }
+      </button>
+    </div>
+    }
+
+    @if (paso === 2) {
+    <div>
+      <p class="instruccion">Revisa tu correo <strong>{{ email }}</strong> e ingresa el código recibido.</p>
+      <div class="form-group">
+        <label>Código de verificación</label>
+        <input type="text" [(ngModel)]="codigo" placeholder="000000" maxlength="6" [disabled]="cargando">
+      </div>
+      <div class="form-group">
+        <label>Nueva contraseña</label>
+        <input type="password" [(ngModel)]="nuevaPassword" placeholder="••••••••" [disabled]="cargando">
+      </div>
+      <div class="form-group">
+        <label>Confirmar contraseña</label>
+        <input type="password" [(ngModel)]="confirmarPassword" placeholder="••••••••" [disabled]="cargando">
+      </div>
+      @if (error) {
+        <div class="error-message">{{ error }}</div>
+      }
+      <button class="btn-primary" [disabled]="cargando" (click)="verificarYCambiar()">
+        @if (!cargando) { <span>Cambiar Contraseña</span> }
+        @if (cargando) { <span>Verificando...</span> }
+      </button>
+    </div>
+    }
+
+    @if (paso === 3) {
+    <div class="exito">
+      <div class="exito-icon">✓</div>
+      <h3>¡Contraseña actualizada!</h3>
+      <p>Serás redirigido al login en unos segundos...</p>
+    </div>
+    }
+
+    <button class="btn-volver" (click)="volverAlLogin()">← Volver al Login</button>
+  </div>
+</div>

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']
+  styleUrl: './login.css'
 })
 export class LoginComponent {
   usuario: string = '';
@@ -29,19 +29,15 @@ export class LoginComponent {
       this.errorMessage = 'Complete usuario y contraseña.';
       return;
     }
-
     this.cargando = true;
     this.errorMessage = '';
-    console.log('Intentando iniciar sesión con:', this.usuario);
-
     this.authService.login({ username: this.usuario, password: this.contrasena }).subscribe({
       next: (res) => {
         localStorage.setItem('token', res.token);
         localStorage.setItem('usuarioActual', res.nombreCompleto || res.username);
         localStorage.setItem('rol', res.rol);
-        
         this.cargando = false;
-        this.router.navigate([res.ruta]); 
+        this.router.navigate([res.ruta]);
       },
       error: (err) => {
         this.cargando = false;
@@ -53,6 +49,9 @@ export class LoginComponent {
   }
 
   volverInicio(): void {
-  this.router.navigate(['/']);
+    this.router.navigate(['/']);
+  }
+  irARecuperar(): void {
+  this.router.navigate(['/recuperar-contrasena']);
 }
 }
