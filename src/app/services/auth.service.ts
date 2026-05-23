@@ -43,4 +43,12 @@ export class AuthService {
   getRol(): string | null {
     return localStorage.getItem('rol');
   }
+
+  getPerfil(): Observable<any> {
+  return this.http.get(`/api/auth/me`);
+}
+
+  updatePerfil(data: any): Observable<any> {
+    return this.http.put(`/api/auth/me`, data);
+  }
 }

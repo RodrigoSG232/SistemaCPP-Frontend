@@ -1,0 +1,64 @@
+<div class="perfil-wrapper">
+  <div class="perfil-card">
+
+    <div class="perfil-header">
+      <button class="btn-volver" (click)="volver()">← Volver</button>
+      <h2>Mi Perfil</h2>
+    </div>
+
+    @if (cargando) {
+      <div class="loading">Cargando perfil...</div>
+    }
+
+    @if (!cargando) {
+      <div class="avatar-section">
+        <div class="avatar-grande">{{ nombreCompleto.charAt(0).toUpperCase() }}</div>
+        <div class="usuario-info">
+          <span class="username">@{{ username }}</span>
+          <span class="rol-badge">{{ rol }}</span>
+        </div>
+      </div>
+
+      <div class="seccion">
+        <h3>Datos personales</h3>
+
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" [(ngModel)]="nombreCompleto" placeholder="Tu nombre completo">
+        </div>
+
+        <div class="form-group">
+          <label>Correo electrónico</label>
+          <input type="email" [(ngModel)]="email" placeholder="correo@ejemplo.com">
+        </div>
+      </div>
+
+      <div class="seccion">
+        <h3>Cambiar contraseña <span class="opcional">(opcional)</span></h3>
+
+        <div class="form-group">
+          <label>Nueva contraseña</label>
+          <input type="password" [(ngModel)]="nuevaPassword" placeholder="Dejar vacío para no cambiar">
+        </div>
+
+        <div class="form-group">
+          <label>Confirmar contraseña</label>
+          <input type="password" [(ngModel)]="confirmarPassword" placeholder="Repite la nueva contraseña">
+        </div>
+      </div>
+
+      @if (mensaje) {
+        <div class="alert-success">{{ mensaje }}</div>
+      }
+      @if (error) {
+        <div class="alert-error">{{ error }}</div>
+      }
+
+      <button class="btn-guardar" [disabled]="guardando" (click)="guardar()">
+        @if (!guardando) { <span>Guardar cambios</span> }
+        @if (guardando) { <span>Guardando...</span> }
+      </button>
+    }
+
+  </div>
+</div>

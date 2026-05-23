@@ -8,7 +8,7 @@ import { Home } from './modules/landing/pages/home/home';
 import { Admin } from './modules/admin/admin';
 import { authGuard } from './guards/auth-guard';
 import { RecuperarContrasena } from './modules/recuperar-contrasena/recuperar-contrasena';
-
+import { Perfil } from './modules/perfil/perfil';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -23,8 +23,8 @@ export const routes: Routes = [
       { path: 'caja', component: Caja },
       { path: 'psicologia', component: Psicologia },
       { path: 'admin', component: Admin },
+      { path: 'perfil', component: Perfil },
     ]
   },
   { path: '**', redirectTo: '' }
 ];
-

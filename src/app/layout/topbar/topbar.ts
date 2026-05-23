@@ -37,4 +37,7 @@ export class Topbar implements OnInit {
     };
     return map[this.rol] || this.rol;
   }
+  irAPerfil() {
+    this.router.navigate(['/perfil']);
+    }
 }
