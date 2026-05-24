@@ -123,31 +123,43 @@ export class Recepcion implements OnInit {
 
   llamarTicket(ticket: any) {
     if (this.ticketActual) {
-      this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'FINALIZADO').subscribe(() => {
-        this.ticketActual = null;
-        this.llamarTicketDirecto(ticket);
-      });
-    } else {
-      this.llamarTicketDirecto(ticket);
+      alert('Primero debe finalizar la atención actual antes de llamar otro ticket.');
+      return;
     }
-  }
+
+    this.llamarTicketDirecto(ticket);
+}
 
   private llamarTicketDirecto(ticket: any) {
-    this.recepcionService.cambiarEstadoTicket(ticket.id, 'EN_ATENCION').subscribe(() => {
-      this.ticketActual = ticket;
-      this.colaTickets = this.colaTickets.filter(t => t.id !== ticket.id);
-      this.cdr.detectChanges();
+    this.recepcionService.cambiarEstadoTicket(ticket.id, 'EN_ATENCION').subscribe({
+      next: (ticketActualizado) => {
+        this.ticketActual = {
+          ...ticketActualizado,
+          fechaEmision: new Date(ticketActualizado.fechaEmision)
+        };
+
+        this.colaTickets = this.colaTickets.filter(t => t.id !== ticket.id);
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        alert('No se pudo llamar el ticket. Intente nuevamente.');
+      }
     });
-  }
+}
 
   finalizarAtencion() {
     if (!this.ticketActual) return;
 
-    this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'EN_ATENCION').subscribe(() => {
-      this.ticketActual = null;
-      this.cargarTickets();
+    this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'FINALIZADO').subscribe({
+      next: () => {
+        this.ticketActual = null;
+        this.cargarTickets();
+      },
+      error: () => {
+        alert('No se pudo finalizar la atención. Intente nuevamente.');
+      }
     });
-  }
+}
 
   irAHistoria() {
     this.vistaActual = 'historia';

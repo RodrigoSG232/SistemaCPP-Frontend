@@ -10,9 +10,9 @@ export class RecepcionService {
   constructor(private http: HttpClient) {}
 
   // ── Tickets ──────────────────────────────────────────────
-  listarTickets(estado = 'EN_ESPERA'): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/tickets`, { params: { estado } });
-  }
+  listarTickets(estado = 'ESPERA'): Observable<any[]> {
+  return this.http.get<any[]>(`${this.base}/tickets`, { params: { estado } });
+}
   emitirTicket(): Observable<any> {
     return this.http.post<any>(`${this.base}/tickets/emitir`, {});
   }
