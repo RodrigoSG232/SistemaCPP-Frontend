@@ -76,6 +76,9 @@ export class Recepcion implements OnInit {
     private cdr: ChangeDetectorRef
   ) {}
 
+
+  fechaMinima = new Date().toISOString().split('T')[0];
+
   ngOnInit() {
     this.cargarTickets();
     // (Se eliminó la escucha reactiva del teclado de aquí)
@@ -182,6 +185,7 @@ export class Recepcion implements OnInit {
         }
       });
   }
+  
 
   seleccionarPaciente(p: any) {
     this.pacienteSeleccionado = p;
@@ -284,10 +288,20 @@ export class Recepcion implements OnInit {
   }
 
   registrarCita() {
-    // 🟢 VALIDACIÓN ACTUALIZADA: Exige el consultorio
+    // validacion: exige el consultorio
     if (!this.cita.pacienteId || !this.cita.especialidadId || !this.cita.psicologoId || !this.cita.fecha || !this.cita.hora || !this.cita.consultorio) {
       this.errorCita = 'Complete todos los campos.';
       return;
+    }
+
+    // validar hora no pasada solo si la fecha es hoy
+    if (this.cita.fecha === new Date().toISOString().split('T')[0]) {
+      const ahora = new Date();
+      const horaActual = `${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
+      if (this.cita.hora <= horaActual) {
+        this.errorCita = 'No puedes agendar una cita en una hora que ya pasó.';
+        return;
+      }
     }
 
     this.agendando = true;

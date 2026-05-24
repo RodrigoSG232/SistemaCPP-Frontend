@@ -186,8 +186,8 @@
                 <tr *ngFor="let c of citasPaciente">
                   <td>{{ c.fechaCita | date:'dd/MM/yyyy' }}</td>
                   <td>{{ c.horaCita }}</td>
-                  <td>{{ c.especialidad?.nombre }}</td>
-                  <td>{{ c.psicologo?.nombres }} {{ c.psicologo?.apellidos }}</td>
+                  <td>{{ c.especialidad }}</td>
+                  <td>{{ c.psicologo }}</td>
                   <td><span class="estado-badge estado-{{ c.estado | lowercase }}">{{ c.estado }}</span></td>
                 </tr>
               </tbody>
@@ -218,8 +218,8 @@
           
           <div *ngIf="resultadosBusqueda.length > 0" class="dropdown-results">
             <div class="dropdown-item" *ngFor="let p of resultadosBusqueda" 
-                 (click)="cita.pacienteId = p.id; busquedaPaciente = p.nombres + ' ' + p.apellidos; pacienteSeleccionado = p; resultadosBusqueda = []">
-              <strong>{{ p.nombres }} {{ p.apellidos }}</strong> — DNI: {{ p.dni }}
+                (click)="cita.pacienteId = p.id; busquedaPaciente = p.nombres + ' ' + p.apellidos; pacienteSeleccionado = p; resultadosBusqueda = []">
+                <strong>{{ p.nombres }} {{ p.apellidos }}</strong> — DNI: {{ p.dni }}
             </div>
           </div>
         </div>
@@ -270,7 +270,7 @@
           <div class="grid-3 mb-md">
             <div class="form-group">
               <label>Fecha *</label>
-              <input type="date" [(ngModel)]="cita.fecha" name="fecha" (change)="onPsicologoOFechaChange()" [min]="fechaHoy" [disabled]="!cita.psicologoId">
+              <input type="date" [(ngModel)]="cita.fecha" name="fecha" (change)="onPsicologoOFechaChange()" [min]="fechaMinima" [disabled]="!cita.psicologoId">
             </div>
 
             <div class="form-group">
