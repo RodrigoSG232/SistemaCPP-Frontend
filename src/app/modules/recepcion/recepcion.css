@@ -296,6 +296,21 @@
   font-size: 0.875rem;
 }
 
+.field-error {
+  color: #e03131;
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+.input-invalid {
+  border-color: #e03131 !important;
+  background-color: #fff5f5;
+}
+
+.input-invalid:focus {
+  box-shadow: 0 0 0 3px rgba(224, 49, 49, 0.12);
+}
+
 /* =========================================
    5. TABLAS Y COMPONENTES PEQUEÑOS
    ========================================= */

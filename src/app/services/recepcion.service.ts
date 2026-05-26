@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { PacienteRequest, PacienteResponse } from '../models/paciente.model';
 
 @Injectable({ providedIn: 'root' })
 export class RecepcionService {
@@ -27,8 +28,8 @@ export class RecepcionService {
   getPacientePorDni(dni: string): Observable<any> {
     return this.http.get<any>(`${this.base}/pacientes/dni/${dni}`);
   }
-  crearPaciente(paciente: any): Observable<any> {
-    return this.http.post<any>(`${this.base}/pacientes`, paciente);
+  crearPaciente(paciente: PacienteRequest): Observable<PacienteResponse> {
+    return this.http.post<PacienteResponse>(`${this.base}/pacientes`, paciente);
   }
 
   // ── Especialidades y psicólogos ──────────────────────────
