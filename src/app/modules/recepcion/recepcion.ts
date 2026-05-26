@@ -1,16 +1,16 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { RecepcionService } from '../../services/recepcion.service';
 import { finalize } from 'rxjs/operators';
-import { Router } from '@angular/router';
+import { PacienteRequest, PacienteValidationErrors } from '../../models/paciente.model';
 
 type Vista = 'inicio' | 'historia' | 'cita';
 
 @Component({
   selector: 'app-recepcion',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './recepcion.html',
   styleUrl: './recepcion.css'
 })
@@ -39,16 +39,7 @@ export class Recepcion implements OnInit {
   busquedaRealizada = false;
 
   mostrarFormNuevoPaciente = false;
-  nuevoPaciente = {
-    nombres: '',
-    apellidos: '',
-    dni: '',
-    fechaNacimiento: '',
-    telefono: '',
-    email: '',
-    sexo: '',
-    direccion: ''
-  };
+  pacienteForm: FormGroup;
   guardandoPaciente = false;
   errorPaciente = '';
 
@@ -73,8 +64,20 @@ export class Recepcion implements OnInit {
 
   constructor(
     private recepcionService: RecepcionService,
+    private fb: FormBuilder,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.pacienteForm = this.fb.group({
+      nombres: ['', [Validators.required, Validators.maxLength(100)]],
+      apellidos: ['', [Validators.required, Validators.maxLength(100)]],
+      dni: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+      fechaNacimiento: ['', [Validators.required, this.fechaNacimientoPasada]],
+      telefono: ['', [Validators.pattern(/^\d{9}$/)]],
+      email: ['', [Validators.email, Validators.maxLength(150)]],
+      sexo: ['', [Validators.required]],
+      direccion: ['', [Validators.maxLength(250)]]
+    });
+  }
 
 
   fechaMinima = new Date().toISOString().split('T')[0];
@@ -213,7 +216,7 @@ export class Recepcion implements OnInit {
   abrirFormNuevoPaciente() {
     this.mostrarFormNuevoPaciente = true;
     this.errorPaciente = '';
-    this.nuevoPaciente = {
+    this.pacienteForm.reset({
       nombres: '',
       apellidos: '',
       dni: '',
@@ -222,16 +225,26 @@ export class Recepcion implements OnInit {
       email: '',
       sexo: '',
       direccion: ''
-    };
+    });
+    this.pacienteForm.markAsPristine();
+    this.pacienteForm.markAsUntouched();
     this.cdr.detectChanges();
   }
 
   guardarNuevoPaciente() {
+    if (this.pacienteForm.invalid) {
+      this.pacienteForm.markAllAsTouched();
+      this.cdr.detectChanges();
+      return;
+    }
+
     this.guardandoPaciente = true;
     this.errorPaciente = '';
     this.cdr.detectChanges();
 
-    this.recepcionService.crearPaciente(this.nuevoPaciente)
+    const request = this.construirPacienteRequest();
+
+    this.recepcionService.crearPaciente(request)
       .pipe(finalize(() => {
         this.guardandoPaciente = false;
         this.cdr.detectChanges();
@@ -242,10 +255,110 @@ export class Recepcion implements OnInit {
           this.seleccionarPaciente(p);
         },
         error: (err) => {
-          this.errorPaciente = err.error?.error || 'Error al guardar el paciente.';
+          this.procesarErroresPaciente(err.error);
           this.cdr.detectChanges();
         }
       });
+  }
+
+  campoInvalido(campo: string): boolean {
+    const control = this.pacienteForm.get(campo);
+    return !!control && control.invalid && (control.touched || control.dirty);
+  }
+
+  obtenerErrorCampo(campo: string): string {
+    const control = this.pacienteForm.get(campo);
+    if (!control || !control.errors) return '';
+
+    if (control.errors['backend']) return control.errors['backend'];
+
+    const mensajes: Record<string, Record<string, string>> = {
+      dni: {
+        required: 'El DNI es obligatorio',
+        pattern: 'El DNI debe tener exactamente 8 dígitos numéricos'
+      },
+      nombres: {
+        required: 'Los nombres son obligatorios',
+        maxlength: 'Los nombres no deben superar los 100 caracteres'
+      },
+      apellidos: {
+        required: 'Los apellidos son obligatorios',
+        maxlength: 'Los apellidos no deben superar los 100 caracteres'
+      },
+      fechaNacimiento: {
+        required: 'La fecha de nacimiento es obligatoria',
+        fechaNoPasada: 'La fecha de nacimiento debe ser anterior a la fecha actual'
+      },
+      sexo: {
+        required: 'El sexo es obligatorio'
+      },
+      telefono: {
+        pattern: 'El teléfono debe tener 9 dígitos numéricos'
+      },
+      email: {
+        email: 'El email no tiene un formato válido',
+        maxlength: 'El email no debe superar los 150 caracteres'
+      },
+      direccion: {
+        maxlength: 'La dirección no debe superar los 250 caracteres'
+      }
+    };
+
+    const primerError = Object.keys(control.errors)[0];
+    return mensajes[campo]?.[primerError] || '';
+  }
+
+  construirPacienteRequest(): PacienteRequest {
+    const raw = this.pacienteForm.getRawValue();
+
+    return {
+      dni: raw.dni.trim(),
+      nombres: raw.nombres.trim(),
+      apellidos: raw.apellidos.trim(),
+      fechaNacimiento: raw.fechaNacimiento,
+      sexo: raw.sexo as 'M' | 'F',
+      telefono: this.campoOpcional(raw.telefono),
+      email: this.campoOpcional(raw.email),
+      direccion: this.campoOpcional(raw.direccion)
+    };
+  }
+
+  fechaNacimientoPasada(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+
+    const fechaNacimiento = new Date(`${value}T00:00:00`);
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    return fechaNacimiento < hoy ? null : { fechaNoPasada: true };
+  }
+
+  private campoOpcional(value: string | null | undefined): string | null {
+    const limpio = value?.trim();
+    return limpio ? limpio : null;
+  }
+
+  private procesarErroresPaciente(error: PacienteValidationErrors | undefined) {
+    if (!error || typeof error !== 'object') {
+      this.errorPaciente = 'Error al guardar el paciente.';
+      return;
+    }
+
+    let tieneErroresCampo = false;
+    (Object.keys(error) as Array<keyof PacienteValidationErrors>).forEach((campo) => {
+      if (campo === 'error') return;
+
+      const mensaje = error[campo];
+      const control = this.pacienteForm.get(campo);
+      if (control && mensaje) {
+        control.setErrors({ ...control.errors, backend: mensaje });
+        control.markAsTouched();
+        tieneErroresCampo = true;
+      }
+    });
+
+    this.errorPaciente = error.error || (tieneErroresCampo ? '' : 'Error al guardar el paciente.');
   }
 
   irAAgendarCita(paciente?: any) {

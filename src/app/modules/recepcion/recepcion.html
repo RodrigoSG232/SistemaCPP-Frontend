@@ -113,52 +113,62 @@
       <div class="card mb-lg" *ngIf="mostrarFormNuevoPaciente">
         <div class="card-title-row">
           <h4>Nuevo Paciente</h4>
-          <button class="btn-back" (click)="mostrarFormNuevoPaciente = false">✕ Cancelar</button>
+          <button class="btn-back" type="button" (click)="mostrarFormNuevoPaciente = false">✕ Cancelar</button>
         </div>
+        <form [formGroup]="pacienteForm" (ngSubmit)="guardarNuevoPaciente()">
         <div class="form-grid-2">
           <div class="form-group">
             <label>Nombres *</label>
-            <input type="text" [(ngModel)]="nuevoPaciente.nombres" placeholder="Nombres">
+            <input type="text" formControlName="nombres" placeholder="Nombres" [class.input-invalid]="campoInvalido('nombres')">
+            <div class="field-error" *ngIf="campoInvalido('nombres')">{{ obtenerErrorCampo('nombres') }}</div>
           </div>
           <div class="form-group">
             <label>Apellidos *</label>
-            <input type="text" [(ngModel)]="nuevoPaciente.apellidos" placeholder="Apellidos">
+            <input type="text" formControlName="apellidos" placeholder="Apellidos" [class.input-invalid]="campoInvalido('apellidos')">
+            <div class="field-error" *ngIf="campoInvalido('apellidos')">{{ obtenerErrorCampo('apellidos') }}</div>
           </div>
           <div class="form-group">
             <label>DNI *</label>
-            <input type="text" [(ngModel)]="nuevoPaciente.dni" placeholder="12345678" maxlength="8">
+            <input type="text" formControlName="dni" placeholder="12345678" maxlength="8" [class.input-invalid]="campoInvalido('dni')">
+            <div class="field-error" *ngIf="campoInvalido('dni')">{{ obtenerErrorCampo('dni') }}</div>
           </div>
           <div class="form-group">
             <label>Fecha de Nacimiento</label>
-            <input type="date" [(ngModel)]="nuevoPaciente.fechaNacimiento">
+            <input type="date" formControlName="fechaNacimiento" [class.input-invalid]="campoInvalido('fechaNacimiento')">
+            <div class="field-error" *ngIf="campoInvalido('fechaNacimiento')">{{ obtenerErrorCampo('fechaNacimiento') }}</div>
           </div>
           <div class="form-group">
             <label>Teléfono</label>
-            <input type="text" [(ngModel)]="nuevoPaciente.telefono" placeholder="999888777">
+            <input type="text" formControlName="telefono" placeholder="999888777" [class.input-invalid]="campoInvalido('telefono')">
+            <div class="field-error" *ngIf="campoInvalido('telefono')">{{ obtenerErrorCampo('telefono') }}</div>
           </div>
           <div class="form-group">
             <label>Email</label>
-            <input type="email" [(ngModel)]="nuevoPaciente.email" placeholder="correo@ejemplo.com">
+            <input type="email" formControlName="email" placeholder="correo@ejemplo.com" [class.input-invalid]="campoInvalido('email')">
+            <div class="field-error" *ngIf="campoInvalido('email')">{{ obtenerErrorCampo('email') }}</div>
           </div>
           <div class="form-group">
             <label>Sexo</label>
-            <select [(ngModel)]="nuevoPaciente.sexo">
+            <select formControlName="sexo" [class.input-invalid]="campoInvalido('sexo')">
               <option value="">Seleccionar...</option>
               <option value="M">Masculino</option>
               <option value="F">Femenino</option>
             </select>
+            <div class="field-error" *ngIf="campoInvalido('sexo')">{{ obtenerErrorCampo('sexo') }}</div>
           </div>
           <div class="form-group span-2">
             <label>Dirección</label>
-            <input type="text" [(ngModel)]="nuevoPaciente.direccion" placeholder="Av. ...">
+            <input type="text" formControlName="direccion" placeholder="Av. ..." [class.input-invalid]="campoInvalido('direccion')">
+            <div class="field-error" *ngIf="campoInvalido('direccion')">{{ obtenerErrorCampo('direccion') }}</div>
           </div>
         </div>
         <div class="error-message" *ngIf="errorPaciente">{{ errorPaciente }}</div>
         <div class="action-footer mt-md">
-          <button class="btn-primary btn-large" (click)="guardarNuevoPaciente()" [disabled]="guardandoPaciente">
+          <button class="btn-primary btn-large" type="submit" [disabled]="guardandoPaciente">
             {{ guardandoPaciente ? 'Guardando...' : 'Guardar Historia Clínica' }}
           </button>
         </div>
+        </form>
       </div>
 
       <div *ngIf="pacienteSeleccionado">
