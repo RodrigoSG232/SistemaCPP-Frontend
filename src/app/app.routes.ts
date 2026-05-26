@@ -10,12 +10,16 @@ import { authGuard } from './guards/auth-guard';
 import { RecuperarContrasena } from './modules/recuperar-contrasena/recuperar-contrasena';
 import { Perfil } from './modules/perfil/perfil';
 import { Anfitriona } from './modules/anfitriona/anfitriona';
-
+import { TicketComponent } from './modules/tickets-paciente/ticket.component';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'recuperar-contrasena', component: RecuperarContrasena },
+
+  // Vista pública de tickets
+  { path: 'tickets', component: TicketComponent },
+
   {
     path: '',
     component: MainLayout,

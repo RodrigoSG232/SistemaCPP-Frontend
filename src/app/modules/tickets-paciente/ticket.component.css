@@ -1,0 +1,178 @@
+:host {
+  display: block;
+  font-family: inherit;
+}
+
+.ticket-wrapper {
+  min-height: 100vh;
+  background: var(--bg-app);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  box-sizing: border-box;
+}
+
+/* Contenedor interno centrado */
+.ticket-content {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+/* Card ticket actual */
+.ticket-actual-card {
+  width: 100%;
+  background: var(--brand-primary);
+  border-radius: 18px;
+  padding: 48px 56px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 10px 34px var(--brand-light);
+}
+
+.ticket-label {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ticket-numero {
+  font-size: 140px;
+  font-weight: 800;
+  color: var(--bg-card);
+  letter-spacing: 6px;
+  line-height: 1;
+  margin: 0;
+}
+
+/* Bloque de siguientes */
+.siguientes-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.siguientes-label {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Grid siguientes */
+.siguientes-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+
+/* Cards siguientes */
+.siguiente-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 18px;
+  padding: 40px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.siguiente-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--brand-primary);
+  box-shadow: 0 6px 20px var(--brand-light);
+}
+
+.siguiente-numero {
+  font-size: 56px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 3px;
+}
+
+/* Responsive tablet */
+@media (max-width: 768px) {
+  .ticket-content {
+    max-width: 100%;
+    gap: 28px;
+  }
+
+  .ticket-actual-card {
+    padding: 36px 28px 42px;
+  }
+
+  .ticket-label {
+    font-size: 15px;
+  }
+
+  .ticket-numero {
+    font-size: 88px;
+  }
+
+  .siguientes-label {
+    font-size: 18px;
+  }
+
+  .siguientes-grid {
+    gap: 16px;
+  }
+
+  .siguiente-card {
+    padding: 30px 14px;
+  }
+
+  .siguiente-numero {
+    font-size: 40px;
+  }
+}
+
+/* Responsive móvil */
+@media (max-width: 480px) {
+  .ticket-wrapper {
+    padding: 24px 16px;
+  }
+
+  .ticket-content {
+    gap: 22px;
+  }
+
+  .ticket-actual-card {
+    padding: 28px 24px 32px;
+    border-radius: var(--radius-lg);
+  }
+
+  .ticket-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+  }
+
+  .ticket-numero {
+    font-size: 64px;
+    letter-spacing: 3px;
+  }
+
+  .siguientes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .siguiente-card {
+    padding: 28px 16px;
+  }
+
+  .siguiente-numero {
+    font-size: 36px;
+  }
+}

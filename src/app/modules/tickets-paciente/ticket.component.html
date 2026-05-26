@@ -1,0 +1,22 @@
+<div class="ticket-wrapper">
+
+  <div class="ticket-content">
+
+    <div class="ticket-actual-card">
+      <p class="ticket-label">TICKET ACTUAL</p>
+      <h1 class="ticket-numero">{{ ticketActual }}</h1>
+    </div>
+
+    <div class="siguientes-section">
+      <p class="siguientes-label">Siguientes:</p>
+
+      <div class="siguientes-grid">
+        <div class="siguiente-card" *ngFor="let ticket of siguientes">
+          <span class="siguiente-numero">{{ ticket }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
