@@ -9,6 +9,8 @@ import { Admin } from './modules/admin/admin';
 import { authGuard } from './guards/auth-guard';
 import { RecuperarContrasena } from './modules/recuperar-contrasena/recuperar-contrasena';
 import { Perfil } from './modules/perfil/perfil';
+import { Anfitriona } from './modules/anfitriona/anfitriona';
+
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -24,6 +26,7 @@ export const routes: Routes = [
       { path: 'psicologia', component: Psicologia },
       { path: 'admin', component: Admin },
       { path: 'perfil', component: Perfil },
+      { path: 'anfitriona', component: Anfitriona },
     ]
   },
   { path: '**', redirectTo: '' }

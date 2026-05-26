@@ -1,0 +1,82 @@
+.anfitriona-container {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.emit-panel { text-align: center; }
+.emit-panel h2 { margin-bottom: 0.5rem; }
+
+.btn-primary {
+  background: #0d9488;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-large { font-size: 1.1rem; padding: 1rem 3rem; }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid #0d9488;
+  color: #0d9488;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+}
+
+.btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; }
+
+.ultimo-ticket {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ticket-numero {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #0d9488;
+}
+
+.lista-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
+th { font-weight: 600; color: #666; font-size: 0.85rem; }
+
+.badge { padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+.badge-espera { background: #fef3c7; color: #92400e; }
+.badge-en_atencion { background: #d1fae5; color: #065f46; }
+
+.empty { text-align: center; color: #999; padding: 2rem; }
+.text-muted { color: #666; font-size: 0.9rem; }
