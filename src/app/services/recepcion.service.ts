@@ -3,6 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { PacienteRequest, PacienteResponse } from '../models/paciente.model';
+import { EstadoTicket, TicketResponse } from '../models/ticket.model';
 
 @Injectable({ providedIn: 'root' })
 export class RecepcionService {
@@ -11,14 +12,12 @@ export class RecepcionService {
   constructor(private http: HttpClient) {}
 
   // ── Tickets ──────────────────────────────────────────────
-  listarTickets(estado = 'ESPERA'): Observable<any[]> {
-  return this.http.get<any[]>(`${this.base}/tickets`, { params: { estado } });
-}
-  emitirTicket(): Observable<any> {
-    return this.http.post<any>(`${this.base}/tickets/emitir`, {});
+  listarTickets(estado: EstadoTicket = 'ESPERA'): Observable<TicketResponse[]> {
+    return this.http.get<TicketResponse[]>(`${this.base}/tickets`, { params: { estado } });
   }
-  cambiarEstadoTicket(id: number, estado: string): Observable<any> {
-    return this.http.patch(`${this.base}/tickets/${id}/estado`, { estado });
+
+  cambiarEstadoTicket(id: number, estado: EstadoTicket): Observable<TicketResponse> {
+    return this.http.patch<TicketResponse>(`${this.base}/tickets/${id}/estado`, { estado });
   }
 
   // ── Pacientes ─────────────────────────────────────────────

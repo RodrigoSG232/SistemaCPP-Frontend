@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
+import { AnfitrionaService } from '../../services/anfitriona.service';
+import { TicketResponse } from '../../models/ticket.model';
+import { finalize } from 'rxjs/internal/operators/finalize';
 
 @Component({
   selector: 'app-anfitriona',
@@ -12,43 +13,52 @@ import { environment } from '../../../environments/environment';
 })
 export class Anfitriona implements OnInit {
 
-  tickets: any[] = [];
+  tickets: TicketResponse[] = [];
   emitiendo = false;
-  ultimoTicket: any = null;
+  ultimoTicket: TicketResponse | null = null;
 
-  private base = `${environment.apiUrl}/recepcion`;
-
-  constructor(private http: HttpClient) {}
+  constructor(
+  private anfitrionaService: AnfitrionaService,
+  private cdr: ChangeDetectorRef
+) {}
 
   ngOnInit() {
     this.cargarTickets();
   }
 
-  private headers() {
-    const token = localStorage.getItem('token');
-    return { headers: new HttpHeaders({ Authorization: `Bearer ${token}` }) };
-  }
-
   cargarTickets() {
-    this.http.get<any[]>(`${this.base}/tickets?estado=ESPERA`, this.headers()).subscribe({
-      next: (data) => this.tickets = data,
-      error: () => {}
-    });
-  }
+  this.anfitrionaService.listarTicketsHoy().subscribe({
+    next: (data) => {
+      this.tickets = data;
+      this.cdr.detectChanges();
+    },
+    error: () => {
+      alert('No se pudieron cargar los tickets de hoy.');
+    }
+  });
+}
 
   emitirTicket() {
-    this.emitiendo = true;
-    this.http.post<any>(`${this.base}/tickets/emitir`, {}, this.headers()).subscribe({
+  this.emitiendo = true;
+  this.cdr.detectChanges();
+
+  this.anfitrionaService.emitirTicket()
+    .pipe(finalize(() => {
+      this.emitiendo = false;
+      this.cdr.detectChanges();
+    }))
+    .subscribe({
       next: (ticket) => {
         this.ultimoTicket = ticket;
-        this.emitiendo = false;
         this.cargarTickets();
       },
-      error: () => { this.emitiendo = false; }
+      error: () => {
+        alert('No se pudo emitir el ticket. Intente nuevamente.');
+      }
     });
-  }
+}
 
-  imprimirTicket(ticket: any) {
+  imprimirTicket(ticket: TicketResponse) {
     const ventana = window.open('', '_blank', 'width=300,height=400');
     if (!ventana) return;
     ventana.document.write(`

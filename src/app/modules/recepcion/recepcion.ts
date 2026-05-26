@@ -4,8 +4,13 @@ import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModu
 import { RecepcionService } from '../../services/recepcion.service';
 import { finalize } from 'rxjs/operators';
 import { PacienteRequest, PacienteValidationErrors } from '../../models/paciente.model';
+import { TicketResponse } from '../../models/ticket.model';
 
 type Vista = 'inicio' | 'historia' | 'cita';
+type TicketView = Omit<TicketResponse, 'fechaEmision'> & {
+  fechaEmision: Date;
+  pacienteNombre?: string;
+};
 
 @Component({
   selector: 'app-recepcion',
@@ -23,8 +28,8 @@ export class Recepcion implements OnInit {
     day: 'numeric'
   });
 
-  ticketActual: any = null;
-  colaTickets: any[] = [];
+  ticketActual: TicketView | null = null;
+  colaTickets: TicketView[] = [];
   loadingTickets = false;
 
   vistaActual: Vista = 'inicio';
@@ -108,7 +113,9 @@ export class Recepcion implements OnInit {
 
     this.recepcionService.listarTickets('EN_ATENCION').subscribe({
       next: (tickets) => {
-        this.ticketActual = tickets[0] || null;
+        this.ticketActual = tickets[0]
+          ? { ...tickets[0], fechaEmision: new Date(tickets[0].fechaEmision) }
+          : null;
         this.cdr.detectChanges();
       },
       error: () => {
@@ -118,13 +125,7 @@ export class Recepcion implements OnInit {
     });
   }
 
-  emitirTicket() {
-    this.recepcionService.emitirTicket().subscribe(() => {
-      this.cargarTickets();
-    });
-  }
-
-  llamarTicket(ticket: any) {
+  llamarTicket(ticket: TicketView) {
     if (this.ticketActual) {
       alert('Primero debe finalizar la atención actual antes de llamar otro ticket.');
       return;
@@ -133,7 +134,7 @@ export class Recepcion implements OnInit {
     this.llamarTicketDirecto(ticket);
 }
 
-  private llamarTicketDirecto(ticket: any) {
+  private llamarTicketDirecto(ticket: TicketView) {
     this.recepcionService.cambiarEstadoTicket(ticket.id, 'EN_ATENCION').subscribe({
       next: (ticketActualizado) => {
         this.ticketActual = {
