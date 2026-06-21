@@ -1,6 +1,22 @@
 <div class="ticket-wrapper">
 
   <div class="ticket-content">
+    <header class="screen-header">
+      <div>
+        <p>Clínicas Psicología del Perú</p>
+        <h2>Sala de espera</h2>
+      </div>
+      <div class="screen-actions">
+        <button
+          type="button"
+          class="sound-button"
+          (click)="activarSonido()"
+          [class.sound-button-active]="sonidoActivado">
+          {{ sonidoActivado ? 'Sonido activo' : 'Activar sonido' }}
+        </button>
+        <span>{{ horaActual | date:'HH:mm:ss' }}</span>
+      </div>
+    </header>
 
     <div class="ticket-actual-card">
       <p class="ticket-label">TICKET ACTUAL</p>
@@ -13,6 +29,9 @@
       <div class="siguientes-grid">
         <div class="siguiente-card" *ngFor="let ticket of siguientes">
           <span class="siguiente-numero">{{ ticket }}</span>
+        </div>
+        <div class="siguiente-card siguiente-vacio" *ngIf="siguientes.length === 0">
+          <span>Sin tickets en espera</span>
         </div>
       </div>
     </div>

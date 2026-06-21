@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { FullCalendarModule } from '@fullcalendar/angular';
@@ -24,7 +24,7 @@ type TicketView = Omit<TicketResponse, 'fechaEmision'> & {
   templateUrl: './recepcion.html',
   styleUrl: './recepcion.css'
 })
-export class Recepcion implements OnInit {
+export class Recepcion implements OnInit, OnDestroy {
 
   fechaHoy = new Date().toLocaleDateString('es-PE', {
     weekday: 'long',
@@ -36,6 +36,8 @@ export class Recepcion implements OnInit {
   ticketActual: TicketView | null = null;
   colaTickets: TicketView[] = [];
   loadingTickets = false;
+  private ticketsIntervalo: any;
+  private actualizandoTickets = false;
 
   vistaActual: Vista = 'inicio';
 
@@ -139,12 +141,27 @@ export class Recepcion implements OnInit {
 
   ngOnInit() {
     this.cargarTickets();
+    this.ticketsIntervalo = setInterval(() => {
+      this.cargarTickets(true);
+    }, 3000);
     // (Se eliminó la escucha reactiva del teclado de aquí)
   }
 
-  cargarTickets() {
-    this.loadingTickets = true;
-    this.cdr.detectChanges();
+  ngOnDestroy() {
+    if (this.ticketsIntervalo) {
+      clearInterval(this.ticketsIntervalo);
+    }
+  }
+
+  cargarTickets(silencioso = false) {
+    if (this.actualizandoTickets) return;
+
+    this.actualizandoTickets = true;
+
+    if (!silencioso) {
+      this.loadingTickets = true;
+      this.cdr.detectChanges();
+    }
 
     this.recepcionService.listarTickets('ESPERA').subscribe({
       next: (tickets) => {
@@ -153,10 +170,12 @@ export class Recepcion implements OnInit {
           fechaEmision: new Date(t.fechaEmision)
         }));
         this.loadingTickets = false;
+        this.actualizandoTickets = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.loadingTickets = false;
+        this.actualizandoTickets = false;
         this.cdr.detectChanges();
       }
     });

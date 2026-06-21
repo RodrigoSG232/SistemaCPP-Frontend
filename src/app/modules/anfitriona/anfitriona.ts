@@ -26,6 +26,10 @@ export class Anfitriona implements OnInit {
     this.cargarTickets();
   }
 
+  abrirPantallaSala() {
+    window.open('/tickets', '_blank');
+  }
+
   cargarTickets() {
   this.anfitrionaService.listarTicketsHoy().subscribe({
     next: (data) => {

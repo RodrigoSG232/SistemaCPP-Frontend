@@ -27,13 +27,16 @@ export class AuthService {
   }
 
   logout(): void {
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('usuarioActual');
+    sessionStorage.removeItem('rol');
     localStorage.removeItem('token');
     localStorage.removeItem('usuarioActual');
     localStorage.removeItem('rol');
   }
 
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return sessionStorage.getItem('token');
   }
 
   isLoggedIn(): boolean {
@@ -41,7 +44,7 @@ export class AuthService {
   }
 
   getRol(): string | null {
-    return localStorage.getItem('rol');
+    return sessionStorage.getItem('rol');
   }
 
   getPerfil(): Observable<any> {

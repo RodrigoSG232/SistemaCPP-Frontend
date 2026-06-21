@@ -23,6 +23,63 @@
   gap: 36px;
 }
 
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  color: var(--text-main);
+}
+
+.screen-header p {
+  color: var(--text-muted);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.screen-header h2 {
+  font-size: 34px;
+  margin: 0;
+}
+
+.screen-header span {
+  color: var(--text-muted);
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.screen-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.sound-button {
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-main);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.sound-button:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+  transform: translateY(-1px);
+}
+
+.sound-button-active {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
 /* Card ticket actual */
 .ticket-actual-card {
   width: 100%;
@@ -96,6 +153,13 @@
   box-shadow: 0 6px 20px var(--brand-light);
 }
 
+.siguiente-vacio {
+  grid-column: 1 / -1;
+  color: var(--text-muted);
+  font-size: 28px;
+  font-weight: 600;
+}
+
 .siguiente-numero {
   font-size: 56px;
   font-weight: 700;
@@ -108,6 +172,16 @@
   .ticket-content {
     max-width: 100%;
     gap: 28px;
+  }
+
+  .screen-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .screen-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .ticket-actual-card {

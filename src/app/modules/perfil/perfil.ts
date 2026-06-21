@@ -67,7 +67,7 @@ export class Perfil implements OnInit {
 
     this.authService.updatePerfil(body).subscribe({
       next: (res) => {
-        localStorage.setItem('usuarioActual', res.nombreCompleto);
+        sessionStorage.setItem('usuarioActual', res.nombreCompleto);
         this.mensaje = 'Perfil actualizado correctamente';
         this.nuevaPassword = '';
         this.confirmarPassword = '';

@@ -33,9 +33,13 @@ export class LoginComponent {
     this.errorMessage = '';
     this.authService.login({ username: this.usuario, password: this.contrasena }).subscribe({
       next: (res) => {
-        localStorage.setItem('token', res.token);
-        localStorage.setItem('usuarioActual', res.nombreCompleto || res.username);
-        localStorage.setItem('rol', res.rol);
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuarioActual');
+        localStorage.removeItem('rol');
+
+        sessionStorage.setItem('token', res.token);
+        sessionStorage.setItem('usuarioActual', res.nombreCompleto || res.username);
+        sessionStorage.setItem('rol', res.rol);
         this.cargando = false;
         this.router.navigate([res.ruta]);
       },

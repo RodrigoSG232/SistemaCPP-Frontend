@@ -18,8 +18,8 @@ export class Topbar implements OnInit {
   constructor(private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
-    this.nombreUsuario = localStorage.getItem('usuarioActual') || 'Usuario';
-    this.rol = localStorage.getItem('rol') || '';
+    this.nombreUsuario = sessionStorage.getItem('usuarioActual') || 'Usuario';
+    this.rol = sessionStorage.getItem('rol') || '';
     this.inicial = this.nombreUsuario.charAt(0).toUpperCase();
   }
 
@@ -33,7 +33,8 @@ export class Topbar implements OnInit {
       RECEPCION: 'Recepción',
       CAJA: 'Caja',
       PSICOLOGO: 'Psicólogo',
-      ADMIN: 'Administrador'
+      ADMIN: 'Administrador',
+      ANFITRIONA: 'Anfitriona'
     };
     return map[this.rol] || this.rol;
   }

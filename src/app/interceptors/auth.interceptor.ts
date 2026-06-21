@@ -4,11 +4,12 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const rutasPublicas = [
     '/api/auth/login',
     '/api/auth/recuperar',
-    '/api/auth/recuperar/verificar'
+    '/api/auth/recuperar/verificar',
+    '/api/public/'
   ];
   
   const esPublica = rutasPublicas.some(ruta => req.url.includes(ruta));
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   if (token && !esPublica) {
     const cloned = req.clone({

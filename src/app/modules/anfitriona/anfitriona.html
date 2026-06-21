@@ -5,6 +5,9 @@
     <button class="btn-primary btn-large" (click)="emitirTicket()" [disabled]="emitiendo">
       {{ emitiendo ? 'Generando...' : '+ Emitir Ticket' }}
     </button>
+    <button class="btn-secondary btn-large" type="button" (click)="abrirPantallaSala()">
+      Abrir pantalla de sala
+    </button>
 
     <div class="ultimo-ticket" *ngIf="ultimoTicket">
       <p>Último ticket emitido:</p>
