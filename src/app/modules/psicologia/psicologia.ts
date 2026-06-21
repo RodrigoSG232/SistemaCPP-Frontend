@@ -1,7 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PsicologiaService } from '../../services/psicologia.service';
+import { Subscription } from 'rxjs';
+import { TurnoNotificacion, TurnoWebsocketService } from '../../services/turno-websocket.service';
 
 const FASES: Record<number, { nombre: string; descripcion: string }> = {
   1: { nombre: 'Fase 1: Evaluación', descripcion: 'Se realiza la evaluación inicial del paciente, recabando información clínica relevante.' },
@@ -17,7 +19,7 @@ const FASES: Record<number, { nombre: string; descripcion: string }> = {
   templateUrl: './psicologia.html',
   styleUrl: './psicologia.css'
 })
-export class Psicologia implements OnInit {
+export class Psicologia implements OnInit, OnDestroy {
 
   fechaSeleccionada = new Date().toISOString().split('T')[0];
   agenda: any = null;
@@ -37,28 +39,49 @@ export class Psicologia implements OnInit {
 
   mostrarHistorial = false;
   iniciandoProceso = false;
+  alertaPacienteListo: TurnoNotificacion | null = null;
 
   fases = FASES;
   fasesKeys = [1, 2, 3, 4];
+  private alertaTimeout: any;
+  private turnoSubscription?: Subscription;
 
   constructor(
     private psicologiaService: PsicologiaService,
+    private turnoWebsocketService: TurnoWebsocketService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.cargarAgenda();
+    this.turnoSubscription = this.turnoWebsocketService.turno$.subscribe((turno) => {
+      this.mostrarAlertaPacienteListo(turno);
+    });
   }
 
-  cargarAgenda() {
-    this.loadingAgenda = true;
-    this.cdr.detectChanges();
+  ngOnDestroy() {
+    if (this.alertaTimeout) {
+      clearTimeout(this.alertaTimeout);
+    }
+
+    this.turnoSubscription?.unsubscribe();
+    this.turnoWebsocketService.desconectar();
+  }
+
+  cargarAgenda(silencioso = false) {
+    if (!silencioso) {
+      this.loadingAgenda = true;
+      this.cdr.detectChanges();
+    }
 
     this.psicologiaService.getAgenda(this.fechaSeleccionada).subscribe({
       next: (res) => {
         this.agenda = res;
         this.citas = res.citas || [];
         this.loadingAgenda = false;
+        if (res.psicologoId) {
+          this.turnoWebsocketService.conectarPacientesListos(res.psicologoId);
+        }
         const activa = this.citas.find(c => c.estado === 'EN_CONSULTA');
         if (activa) this.seleccionarCita(activa);
         this.cdr.detectChanges();
@@ -89,9 +112,13 @@ export class Psicologia implements OnInit {
 
   llamarPaciente(cita: any) {
     this.psicologiaService.cambiarEstadoCita(cita.id, 'EN_CONSULTA').subscribe({
-      next: () => {
-        cita.estado = 'EN_CONSULTA';
-        this.seleccionarCita(cita);
+      next: (citaActualizada) => {
+        this.citas = this.citas.map(item => item.id === citaActualizada.id ? citaActualizada : item);
+        this.seleccionarCita(citaActualizada);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorSesion = err.error?.error || 'No se pudo llamar al paciente.';
         this.cdr.detectChanges();
       }
     });
@@ -195,5 +222,28 @@ export class Psicologia implements OnInit {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  cerrarAlertaPacienteListo() {
+    this.alertaPacienteListo = null;
+    this.cdr.detectChanges();
+  }
+
+  private mostrarAlertaPacienteListo(turno: TurnoNotificacion) {
+    if (turno.fecha !== this.fechaSeleccionada) return;
+
+    this.alertaPacienteListo = turno;
+    this.cargarAgenda(true);
+
+    if (this.alertaTimeout) {
+      clearTimeout(this.alertaTimeout);
+    }
+
+    this.alertaTimeout = setTimeout(() => {
+      this.alertaPacienteListo = null;
+      this.cdr.detectChanges();
+    }, 12000);
+
+    this.cdr.detectChanges();
   }
 }

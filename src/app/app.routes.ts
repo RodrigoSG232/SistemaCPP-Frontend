@@ -11,6 +11,7 @@ import { RecuperarContrasena } from './modules/recuperar-contrasena/recuperar-co
 import { Perfil } from './modules/perfil/perfil';
 import { Anfitriona } from './modules/anfitriona/anfitriona';
 import { TicketComponent } from './modules/tickets-paciente/ticket.component';
+import { Enfermera } from './modules/enfermera/enfermera';
 
 export const routes: Routes = [
   { path: '', component: Home, pathMatch: 'full' },
@@ -31,6 +32,7 @@ export const routes: Routes = [
       { path: 'admin', component: Admin },
       { path: 'perfil', component: Perfil },
       { path: 'anfitriona', component: Anfitriona },
+      { path: 'enfermera', component: Enfermera },
     ]
   },
   { path: '**', redirectTo: '' }

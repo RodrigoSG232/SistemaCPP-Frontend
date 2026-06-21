@@ -34,7 +34,8 @@ export class Topbar implements OnInit {
       CAJA: 'Caja',
       PSICOLOGO: 'Psicólogo',
       ADMIN: 'Administrador',
-      ANFITRIONA: 'Anfitriona'
+      ANFITRIONA: 'Anfitriona',
+      ENFERMERA: 'Enfermera'
     };
     return map[this.rol] || this.rol;
   }

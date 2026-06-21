@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CajaService } from '../../services/caja.service';
@@ -10,7 +10,7 @@ import { CajaService } from '../../services/caja.service';
   templateUrl: './caja.html',
   styleUrl: './caja.css'
 })
-export class Caja implements OnInit {
+export class Caja implements OnInit, OnDestroy {
 
   filtroPaciente = '';
   filtroConcepto = 'Todos los conceptos';
@@ -27,6 +27,8 @@ export class Caja implements OnInit {
   mostrarConfirmacionPago = false;
   comprobanteEmitido: any = null;
   errorPago = '';
+  private deudasIntervalo: any;
+  private actualizandoDeudas = false;
 
   constructor(
     private cajaService: CajaService,
@@ -35,12 +37,30 @@ export class Caja implements OnInit {
 
   ngOnInit() {
     this.buscarDeudas();
+    this.deudasIntervalo = setInterval(() => {
+      this.buscarDeudas(true);
+    }, 5000);
   }
 
-  buscarDeudas() {
-    this.buscando = true;
-    this.buscado = false;
-    this.cdr.detectChanges();
+  ngOnDestroy() {
+    if (this.deudasIntervalo) {
+      clearInterval(this.deudasIntervalo);
+    }
+  }
+
+  buscarDeudas(silencioso = false) {
+    if (this.actualizandoDeudas) return;
+    if (silencioso && (this.deudaSeleccionada || this.procesando || this.mostrarConfirmacionPago || this.comprobanteEmitido)) {
+      return;
+    }
+
+    this.actualizandoDeudas = true;
+
+    if (!silencioso) {
+      this.buscando = true;
+      this.buscado = false;
+      this.cdr.detectChanges();
+    }
 
     const concepto = this.filtroConcepto === 'Todos los conceptos'
       ? undefined
@@ -51,11 +71,13 @@ export class Caja implements OnInit {
         this.deudas = res;
         this.buscando = false;
         this.buscado = true;
+        this.actualizandoDeudas = false;
         this.cdr.detectChanges();
       },
       error: () => {
         this.buscando = false;
         this.buscado = true;
+        this.actualizandoDeudas = false;
         this.cdr.detectChanges();
       }
     });

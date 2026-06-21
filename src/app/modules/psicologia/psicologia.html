@@ -24,10 +24,18 @@
           <strong>{{ c.paciente }}</strong>
           <span class="text-muted">{{ c.hora }} | <span class="estado-dot estado-{{ c.estado | lowercase }}">{{ c.estado | titlecase }}</span></span>
         </div>
-        <button class="btn-outline-small" *ngIf="c.estado === 'PAGADA'" (click)="$event.stopPropagation(); llamarPaciente(c)">Llamar</button>
+        <button class="btn-outline-small" *ngIf="c.estado === 'EN_PISO'" (click)="$event.stopPropagation(); llamarPaciente(c)">Llamar</button>
       </div>
     </div>
   </aside>
+
+  <div class="ready-toast" *ngIf="alertaPacienteListo" role="status" aria-live="polite">
+    <button class="toast-close" type="button" (click)="cerrarAlertaPacienteListo()" aria-label="Cerrar notificacion">×</button>
+    <span>Paciente listo en piso</span>
+    <strong>{{ alertaPacienteListo.paciente }}</strong>
+    <p>{{ alertaPacienteListo.hora }} | {{ alertaPacienteListo.especialidad }}</p>
+    <small>DNI: {{ alertaPacienteListo.pacienteDni }} | HC: {{ alertaPacienteListo.pacienteHc }}</small>
+  </div>
 
   <!-- ═══════════ PANEL CLÍNICO ═══════════ -->
   <main class="clinical-panel">

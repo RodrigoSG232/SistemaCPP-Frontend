@@ -369,6 +369,11 @@
   color: #065f46;
 }
 
+.estado-en_piso {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
 .estado-atendida {
   background: #dbeafe;
   color: #1e40af;
@@ -699,6 +704,11 @@
 
 :host ::ng-deep .fc-estado-pagada {
   background: #10b981 !important;
+  color: #fff !important;
+}
+
+:host ::ng-deep .fc-estado-en_piso {
+  background: #0d9488 !important;
   color: #fff !important;
 }
 

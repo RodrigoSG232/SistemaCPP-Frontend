@@ -1,0 +1,89 @@
+<div class="enfermera-container">
+  <section class="page-header">
+    <div>
+      <h2>Pacientes en piso</h2>
+      <p>Control de pacientes que ya pagaron y esperan pase a consultorio.</p>
+    </div>
+    <div class="header-actions">
+      <input type="date" [(ngModel)]="fechaSeleccionada" (change)="onFechaChange()">
+      <button type="button" class="btn-secondary" (click)="cargarPacientes()" [disabled]="cargando">
+        Actualizar
+      </button>
+    </div>
+  </section>
+
+  <div class="error-message" *ngIf="error">{{ error }}</div>
+
+  <section class="metrics-row">
+    <div class="metric-card">
+      <span>Por recibir</span>
+      <strong>{{ porRecibir.length }}</strong>
+    </div>
+    <div class="metric-card metric-ready">
+      <span>Listos para psicologo</span>
+      <strong>{{ listos.length }}</strong>
+    </div>
+  </section>
+
+  <div class="loading-small" *ngIf="cargando">Cargando pacientes...</div>
+
+  <section class="floor-grid" *ngIf="!cargando">
+    <div class="card">
+      <div class="card-title-row">
+        <h3>Pacientes por recibir</h3>
+        <span class="badge-count">{{ porRecibir.length }}</span>
+      </div>
+
+      <div class="empty-state" *ngIf="porRecibir.length === 0">
+        Sin pacientes pendientes de confirmacion.
+      </div>
+
+      <div class="patient-list">
+        <article class="patient-item" *ngFor="let cita of porRecibir">
+          <div class="patient-main">
+            <strong>{{ cita.paciente }}</strong>
+            <span>{{ cita.hora }} | {{ cita.especialidad }}</span>
+          </div>
+          <div class="patient-meta">
+            <span>DNI: {{ cita.pacienteDni }}</span>
+            <span>HC: {{ cita.pacienteHc }}</span>
+            <span>Psicologo: {{ cita.psicologo }}</span>
+          </div>
+          <button
+            type="button"
+            class="btn-primary"
+            (click)="confirmarEnPiso(cita)"
+            [disabled]="confirmandoId === cita.id">
+            {{ confirmandoId === cita.id ? 'Confirmando...' : 'Confirmar en piso' }}
+          </button>
+        </article>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title-row">
+        <h3>Listos para psicologo</h3>
+        <span class="badge-count badge-ready">{{ listos.length }}</span>
+      </div>
+
+      <div class="empty-state" *ngIf="listos.length === 0">
+        Aun no hay pacientes confirmados en piso.
+      </div>
+
+      <div class="patient-list">
+        <article class="patient-item patient-ready" *ngFor="let cita of listos">
+          <div class="patient-main">
+            <strong>{{ cita.paciente }}</strong>
+            <span>{{ cita.hora }} | {{ cita.especialidad }}</span>
+          </div>
+          <div class="patient-meta">
+            <span>DNI: {{ cita.pacienteDni }}</span>
+            <span>HC: {{ cita.pacienteHc }}</span>
+            <span>Psicologo: {{ cita.psicologo }}</span>
+          </div>
+          <span class="estado-badge estado-en_piso">EN PISO</span>
+        </article>
+      </div>
+    </div>
+  </section>
+</div>
