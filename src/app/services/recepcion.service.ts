@@ -51,6 +51,12 @@ export class RecepcionService {
   registrarCita(data: any): Observable<any> {
     return this.http.post<any>(`${this.base}/citas`, data);
   }
+  getCitasSemana(inicio: string, fin: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.base}/citas/semana`, { params: { inicio, fin } });
+  }
+  cambiarEstadoCita(citaId: number, estado: string): Observable<any> {
+    return this.http.patch<any>(`${this.base}/citas/${citaId}/estado`, { estado });
+  }
   getCitasPorPaciente(pacienteId: number): Observable<any[]> {
     return this.http.get<any[]>(`${this.base}/citas/paciente/${pacienteId}`);
   }

@@ -254,3 +254,131 @@
 .comprobante-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; }
 .comprobante-row:last-child { border: none; }
 .monto-pagado { color: #065f46; font-size: 1.1rem; }
+.receipt-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 1000;
+}
+
+.confirm-modal {
+  width: min(520px, 100%);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-light);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+  padding: 1.25rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 1rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.modal-close {
+  width: 2rem;
+  height: 2rem;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.modal-close:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.confirm-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 0;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.summary-row strong {
+  color: var(--text-main);
+  text-align: right;
+}
+
+.summary-row.total {
+  border-top: 1px solid var(--border-light);
+  padding-top: 0.9rem;
+  font-size: 1.1rem;
+}
+
+.summary-row.total strong {
+  color: var(--brand-primary);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  border-top: 1px solid var(--border-light);
+  padding-top: 1rem;
+}
+
+@media (max-width: 720px) {
+  .caja-container {
+    padding: 1rem;
+  }
+
+  .form-grid-3,
+  .payment-row {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .payment-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summary-row {
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .summary-row strong {
+    text-align: left;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions button,
+  .receipt-actions button {
+    width: 100%;
+  }
+}

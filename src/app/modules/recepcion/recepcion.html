@@ -60,6 +60,96 @@
             <p>Asignar especialidad, psicólogo y generar orden de pago.</p>
           </div>
         </div>
+        <div class="action-card" (click)="irACalendario()" role="button">
+          <div class="action-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/></svg>
+          </div>
+          <div class="action-content">
+            <h4>Calendario Semanal</h4>
+            <p>Ver y gestionar las citas programadas de la semana.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="vistaActual === 'calendario'">
+      <div class="gestion-header">
+        <div class="header-row">
+          <button class="btn-back" (click)="volver()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Volver
+          </button>
+          <div>
+            <h3>Calendario de Citas</h3>
+            <p class="text-muted">Vista semanal para seguimiento de recepción</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="calendar-layout">
+        <div class="card calendar-card">
+          <div class="calendar-toolbar-note">
+            <span *ngIf="cargandoCalendario">Cargando citas...</span>
+            <span *ngIf="!cargandoCalendario">Seleccione una cita o arrastre un horario libre para agendar.</span>
+          </div>
+          <div class="error-message mt-sm" *ngIf="errorCalendario">{{ errorCalendario }}</div>
+          <full-calendar [options]="calendarOptions"></full-calendar>
+        </div>
+
+        <aside class="card calendar-detail" *ngIf="citaCalendarioSeleccionada; else sinCitaSeleccionada">
+          <div class="card-title-row">
+            <h4>Detalle de Cita</h4>
+            <button class="btn-back" type="button" (click)="cerrarDetalleCalendario()">Cerrar</button>
+          </div>
+          <div class="detail-list">
+            <div>
+              <span>Paciente</span>
+              <strong>{{ citaCalendarioSeleccionada.paciente }}</strong>
+            </div>
+            <div>
+              <span>DNI</span>
+              <strong>{{ citaCalendarioSeleccionada.pacienteDni }}</strong>
+            </div>
+            <div>
+              <span>Historia</span>
+              <strong>{{ citaCalendarioSeleccionada.pacienteHc }}</strong>
+            </div>
+            <div>
+              <span>Fecha y hora</span>
+              <strong>{{ citaCalendarioSeleccionada.fecha | date:'dd/MM/yyyy' }} · {{ citaCalendarioSeleccionada.hora }}</strong>
+            </div>
+            <div>
+              <span>Psicólogo</span>
+              <strong>{{ citaCalendarioSeleccionada.psicologo }}</strong>
+            </div>
+            <div>
+              <span>Especialidad</span>
+              <strong>{{ citaCalendarioSeleccionada.especialidad }}</strong>
+            </div>
+            <div>
+              <span>Estado</span>
+              <strong class="estado-badge estado-{{ citaCalendarioSeleccionada.estado | lowercase }}">{{ citaCalendarioSeleccionada.estado }}</strong>
+            </div>
+          </div>
+          <div class="calendar-actions">
+            <button class="btn-secondary" type="button" (click)="cambiarEstadoCitaCalendario('PENDIENTE_PAGO')" [disabled]="citaCalendarioSeleccionada.estado === 'PENDIENTE_PAGO'">
+              Pendiente
+            </button>
+            <button class="btn-primary" type="button" (click)="cambiarEstadoCitaCalendario('PAGADA')" [disabled]="citaCalendarioSeleccionada.estado === 'PAGADA'">
+              Pagada
+            </button>
+            <button class="btn-danger" type="button" (click)="cambiarEstadoCitaCalendario('CANCELADA')" [disabled]="citaCalendarioSeleccionada.estado === 'CANCELADA'">
+              Cancelar
+            </button>
+          </div>
+        </aside>
+
+        <ng-template #sinCitaSeleccionada>
+          <aside class="card calendar-detail empty-detail">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+            <p>Seleccione una cita para ver su detalle.</p>
+          </aside>
+        </ng-template>
       </div>
     </div>
 

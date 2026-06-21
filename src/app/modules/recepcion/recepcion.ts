@@ -1,12 +1,17 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { CalendarOptions, DateSelectArg, DatesSetArg, EventClickArg, EventInput } from '@fullcalendar/core';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import { RecepcionService } from '../../services/recepcion.service';
 import { finalize } from 'rxjs/operators';
 import { PacienteRequest, PacienteValidationErrors } from '../../models/paciente.model';
 import { TicketResponse } from '../../models/ticket.model';
 
-type Vista = 'inicio' | 'historia' | 'cita';
+type Vista = 'inicio' | 'historia' | 'cita' | 'calendario';
 type TicketView = Omit<TicketResponse, 'fechaEmision'> & {
   fechaEmision: Date;
   pacienteNombre?: string;
@@ -15,7 +20,7 @@ type TicketView = Omit<TicketResponse, 'fechaEmision'> & {
 @Component({
   selector: 'app-recepcion',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, FullCalendarModule],
   templateUrl: './recepcion.html',
   styleUrl: './recepcion.css'
 })
@@ -66,6 +71,51 @@ export class Recepcion implements OnInit {
   agendando = false;
   mensajeCita = '';
   errorCita = '';
+  cargandoCalendario = false;
+  errorCalendario = '';
+  citaCalendarioSeleccionada: any = null;
+  rangoCalendario = {
+    inicio: '',
+    fin: ''
+  };
+  calendarOptions: CalendarOptions = {
+    plugins: [timeGridPlugin, dayGridPlugin, interactionPlugin],
+    initialView: 'timeGridWeek',
+    locale: 'es',
+    height: 'auto',
+    allDaySlot: false,
+    nowIndicator: true,
+    selectable: true,
+    selectMirror: true,
+    slotMinTime: '08:00:00',
+    slotMaxTime: '19:00:00',
+    slotDuration: '01:00:00',
+    businessHours: {
+      daysOfWeek: [1, 2, 3, 4, 5, 6],
+      startTime: '08:00',
+      endTime: '19:00'
+    },
+    weekends: true,
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'timeGridWeek,dayGridMonth'
+    },
+    buttonText: {
+      today: 'Hoy',
+      week: 'Semana',
+      month: 'Mes'
+    },
+    events: [],
+    datesSet: (arg) => this.onCalendarioRango(arg),
+    eventClick: (arg) => this.onCitaCalendarioClick(arg),
+    select: (arg) => this.onHorarioCalendarioSeleccionado(arg),
+    eventTimeFormat: {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }
+  };
 
   constructor(
     private recepcionService: RecepcionService,
@@ -388,6 +438,13 @@ export class Recepcion implements OnInit {
     });
   }
 
+  irACalendario() {
+    this.vistaActual = 'calendario';
+    this.citaCalendarioSeleccionada = null;
+    this.errorCalendario = '';
+    this.cdr.detectChanges();
+  }
+
   onEspecialidadChange() {
     if (!this.cita.especialidadId) return;
 
@@ -445,6 +502,7 @@ export class Recepcion implements OnInit {
           this.cita.hora = '';
           this.horasDisponibles = [];
           this.cargarTickets();
+          this.cargarCitasCalendario();
         },
         error: (err) => {
           this.errorCita = err.error?.error || 'Error al registrar la cita.';
@@ -456,5 +514,106 @@ export class Recepcion implements OnInit {
   volver() {
     this.vistaActual = 'inicio';
     this.cdr.detectChanges();
+  }
+
+  private onCalendarioRango(arg: DatesSetArg) {
+    const finInclusivo = new Date(arg.end);
+    finInclusivo.setDate(finInclusivo.getDate() - 1);
+
+    this.rangoCalendario = {
+      inicio: this.toIsoDate(arg.start),
+      fin: this.toIsoDate(finInclusivo)
+    };
+
+    this.cargarCitasCalendario();
+  }
+
+  private cargarCitasCalendario() {
+    if (!this.rangoCalendario.inicio || !this.rangoCalendario.fin) return;
+
+    this.cargandoCalendario = true;
+    this.errorCalendario = '';
+    this.cdr.detectChanges();
+
+    this.recepcionService.getCitasSemana(this.rangoCalendario.inicio, this.rangoCalendario.fin)
+      .pipe(finalize(() => {
+        this.cargandoCalendario = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: (citas) => {
+          this.calendarOptions = {
+            ...this.calendarOptions,
+            events: citas.map(c => this.toCalendarEvent(c))
+          };
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.errorCalendario = 'No se pudo cargar el calendario de citas.';
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  private toCalendarEvent(cita: any): EventInput {
+    const estado = cita.estado || 'PENDIENTE_PAGO';
+    return {
+      id: String(cita.id),
+      title: `${cita.paciente} · ${cita.psicologo}`,
+      start: `${cita.fecha}T${this.normalizarHora(cita.hora)}`,
+      classNames: [`fc-estado-${estado.toLowerCase()}`],
+      extendedProps: cita
+    };
+  }
+
+  private onCitaCalendarioClick(arg: EventClickArg) {
+    this.citaCalendarioSeleccionada = arg.event.extendedProps;
+    this.cdr.detectChanges();
+  }
+
+  private onHorarioCalendarioSeleccionado(arg: DateSelectArg) {
+    const fecha = this.toIsoDate(arg.start);
+    const hora = this.toHora(arg.start);
+
+    this.irAAgendarCita();
+    this.cita.fecha = fecha;
+    this.cita.hora = hora;
+    this.citaCalendarioSeleccionada = null;
+    this.cdr.detectChanges();
+  }
+
+  cambiarEstadoCitaCalendario(estado: 'PENDIENTE_PAGO' | 'PAGADA' | 'CANCELADA') {
+    if (!this.citaCalendarioSeleccionada?.id) return;
+
+    this.recepcionService.cambiarEstadoCita(this.citaCalendarioSeleccionada.id, estado).subscribe({
+      next: (cita) => {
+        this.citaCalendarioSeleccionada = cita;
+        this.cargarCitasCalendario();
+      },
+      error: (err) => {
+        this.errorCalendario = err.error?.error || 'No se pudo actualizar la cita.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  cerrarDetalleCalendario() {
+    this.citaCalendarioSeleccionada = null;
+    this.cdr.detectChanges();
+  }
+
+  private normalizarHora(hora: string): string {
+    return hora?.length === 5 ? `${hora}:00` : hora;
+  }
+
+  private toIsoDate(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private toHora(fecha: Date): string {
+    return `${String(fecha.getHours()).padStart(2, '0')}:${String(fecha.getMinutes()).padStart(2, '0')}`;
   }
 }

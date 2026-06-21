@@ -17,6 +17,10 @@
         <strong>{{ comprobanteEmitido.numeroComprobante }}</strong>
       </div>
       <div class="comprobante-row">
+        <span>Paciente:</span>
+        <strong>{{ comprobanteEmitido.comprobante?.pacienteNombre }}</strong>
+      </div>
+      <div class="comprobante-row">
         <span>Monto Pagado:</span>
         <strong class="monto-pagado">S/ {{ comprobanteEmitido.comprobante?.montoPagado | number:'1.2-2' }}</strong>
       </div>
@@ -25,7 +29,12 @@
         <strong>{{ comprobanteEmitido.comprobante?.medioPago }}</strong>
       </div>
     </div>
-    <button class="btn-primary btn-large" (click)="nuevaBusqueda()">Nueva Búsqueda</button>
+    <div class="receipt-actions">
+      <button class="btn-primary btn-large" (click)="descargarComprobantePdf()">
+        Descargar PDF
+      </button>
+      <button class="btn-secondary btn-large" (click)="nuevaBusqueda()">Nueva Búsqueda</button>
+    </div>
   </div>
 
   <!-- Búsqueda -->
@@ -108,7 +117,7 @@
       <div>
         <h3>Procesar Pago</h3>
         <p class="text-muted">
-          Paciente: <strong>{{ deudaSeleccionada.paciente?.nombres }} {{ deudaSeleccionada.paciente?.apellidos }}</strong>
+          Paciente: <strong>{{ deudaSeleccionada.pacienteNombre }}</strong>
           | Concepto: {{ deudaSeleccionada.concepto }}
         </p>
       </div>
@@ -143,7 +152,7 @@
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
             <span>Tarjeta</span>
           </div>
-          <div class="payment-card" [class.active]="medioPago === 'TRANSFERENCIA'" (click)="medioPago = 'TRANSFERENCIA'">
+          <div class="payment-card" [class.active]="medioPago === 'YAPE_PLIN'" (click)="medioPago = 'YAPE_PLIN'">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
             <span>Yape/Plin</span>
           </div>
@@ -155,10 +164,57 @@
 
     <div class="action-footer">
       <button class="btn-secondary" (click)="cancelarPago()">Cancelar</button>
-      <button class="btn-primary btn-large" (click)="procesarPago()" [disabled]="procesando">
+      <button class="btn-primary btn-large" (click)="solicitarConfirmacionPago()" [disabled]="procesando">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><polyline points="20 6 9 17 4 12"/></svg>
-        {{ procesando ? 'Procesando...' : 'Generar Comprobante' }}
+        Generar Comprobante
       </button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacionPago">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmar-pago-titulo">
+      <div class="modal-header">
+        <h3 id="confirmar-pago-titulo">Confirmar transacción</h3>
+        <button class="modal-close" type="button" (click)="cerrarConfirmacionPago()" [disabled]="procesando" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <div class="confirm-summary">
+        <div class="summary-row">
+          <span>Paciente</span>
+          <strong>{{ deudaSeleccionada?.pacienteNombre }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>DNI</span>
+          <strong>{{ deudaSeleccionada?.pacienteDni }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Concepto</span>
+          <strong>{{ deudaSeleccionada?.concepto }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Comprobante</span>
+          <strong>{{ tipoComprobante }}</strong>
+        </div>
+        <div class="summary-row">
+          <span>Medio de pago</span>
+          <strong>{{ medioPago }}</strong>
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <strong>S/ {{ deudaSeleccionada?.monto | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="cerrarConfirmacionPago()" [disabled]="procesando">
+          Revisar
+        </button>
+        <button class="btn-primary btn-large" type="button" (click)="confirmarPago()" [disabled]="procesando">
+          {{ procesando ? 'Confirmando...' : 'Confirmar pago' }}
+        </button>
+      </div>
     </div>
   </div>
 
