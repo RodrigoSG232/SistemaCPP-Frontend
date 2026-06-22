@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { PsicologiaService } from '../../services/psicologia.service';
 import { Subscription } from 'rxjs';
 import { TurnoNotificacion, TurnoWebsocketService } from '../../services/turno-websocket.service';
+import { EntrevistaInicialInput, ProcesoTerapeutico } from '../../models/proceso-terapeutico.model';
 
 const FASES: Record<number, { nombre: string; descripcion: string }> = {
   1: { nombre: 'Fase 1: Evaluación', descripcion: 'Se realiza la evaluación inicial del paciente, recabando información clínica relevante.' },
@@ -27,10 +28,12 @@ export class Psicologia implements OnInit, OnDestroy {
   loadingAgenda = false;
 
   citaActiva: any = null;
-  proceso: any = null;
+  proceso: ProcesoTerapeutico | null = null;
   sesiones: any[] = [];
 
-  evolucion = '';
+  motivoConsulta = '';
+  observacionesClinicas = '';
+  resultadoHipotesis = '';
   indicaciones = '';
   faseSeleccionada = 1;
   guardandoSesion = false;
@@ -38,7 +41,6 @@ export class Psicologia implements OnInit, OnDestroy {
   errorSesion = '';
 
   mostrarHistorial = false;
-  iniciandoProceso = false;
   alertaPacienteListo: TurnoNotificacion | null = null;
 
   fases = FASES;
@@ -101,7 +103,9 @@ export class Psicologia implements OnInit, OnDestroy {
 
   seleccionarCita(cita: any) {
     this.citaActiva = cita;
-    this.evolucion = '';
+    this.motivoConsulta = '';
+    this.observacionesClinicas = '';
+    this.resultadoHipotesis = '';
     this.indicaciones = '';
     this.mensajeSesion = '';
     this.errorSesion = '';
@@ -148,26 +152,6 @@ export class Psicologia implements OnInit, OnDestroy {
     });
   }
 
-  iniciarProceso() {
-    if (!this.citaActiva) return;
-    this.iniciandoProceso = true;
-    this.cdr.detectChanges();
-
-    this.psicologiaService.iniciarProceso(this.citaActiva.pacienteId).subscribe({
-      next: (proc) => {
-        this.proceso = proc;
-        this.faseSeleccionada = 1;
-        this.iniciandoProceso = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.iniciandoProceso = false;
-        this.errorSesion = err.error?.error || 'Error al iniciar proceso.';
-        this.cdr.detectChanges();
-      }
-    });
-  }
-
   actualizarFase() {
     if (!this.proceso) return;
     this.psicologiaService.actualizarFase(this.proceso.id, this.faseSeleccionada).subscribe({
@@ -182,23 +166,70 @@ export class Psicologia implements OnInit, OnDestroy {
     return FASES[this.faseSeleccionada] || FASES[1];
   }
 
-  guardarSesion() {
-    if (!this.evolucion.trim()) {
-      this.errorSesion = 'La evolución es obligatoria.';
+  // Despachador: el mismo formulario sirve para crear el proceso (sin proceso
+  // activo todavía, equivale a la entrevista inicial) o para registrar una
+  // sesión normal (con proceso ya activo). La rama se decide acá, no en el
+  // template — la plantilla solo refleja el resultado.
+  guardarFormularioClinico() {
+    if (!this.motivoConsulta.trim()) {
+      this.errorSesion = 'El motivo de consulta es obligatorio.';
       return;
     }
+
     if (!this.proceso) {
-      this.errorSesion = 'Primero inicie el proceso terapéutico.';
-      return;
+      this.crearProcesoConEntrevista();
+    } else {
+      this.crearSesion(this.proceso);
     }
+  }
+
+  private crearProcesoConEntrevista() {
+    this.guardandoSesion = true;
+    this.errorSesion = '';
+    this.cdr.detectChanges();
+
+    const entrevista: EntrevistaInicialInput = {
+      motivoConsulta: this.motivoConsulta,
+      antecedentesPersonales: this.observacionesClinicas.trim() || null,
+      antecedentesFamiliares: null,
+      observacionesIniciales: this.resultadoHipotesis.trim() || null
+    };
+
+    this.psicologiaService.iniciarProceso(this.citaActiva.pacienteId, this.citaActiva.id, entrevista).subscribe({
+      next: (proc) => {
+        this.proceso = proc;
+        this.faseSeleccionada = proc.faseActual;
+        this.citaActiva.estado = 'ATENDIDA';
+        this.guardandoSesion = false;
+        this.mensajeSesion = 'Entrevista inicial registrada. Proceso terapéutico iniciado.';
+        this.motivoConsulta = '';
+        this.observacionesClinicas = '';
+        this.resultadoHipotesis = '';
+        this.psicologiaService.getSesionesPorProceso(proc.id).subscribe({
+          next: (s) => {
+            this.sesiones = s;
+            this.cdr.detectChanges();
+          }
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.guardandoSesion = false;
+        this.errorSesion = err.error?.error || 'Error al iniciar el proceso terapéutico.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private crearSesion(proceso: ProcesoTerapeutico) {
     this.guardandoSesion = true;
     this.errorSesion = '';
     this.cdr.detectChanges();
 
     this.psicologiaService.registrarSesion({
       citaId: this.citaActiva.id,
-      procesoId: this.proceso.id,
-      evolucion: this.evolucion,
+      procesoId: proceso.id,
+      evolucion: this.formatearEvolucion(),
       indicaciones: this.indicaciones,
       faseSesion: this.faseSeleccionada
     }).subscribe({
@@ -206,9 +237,11 @@ export class Psicologia implements OnInit, OnDestroy {
         this.guardandoSesion = false;
         this.mensajeSesion = 'Sesión guardada correctamente.';
         this.citaActiva.estado = 'ATENDIDA';
-        this.evolucion = '';
+        this.motivoConsulta = '';
+        this.observacionesClinicas = '';
+        this.resultadoHipotesis = '';
         this.indicaciones = '';
-        this.psicologiaService.getSesionesPorProceso(this.proceso.id).subscribe({
+        this.psicologiaService.getSesionesPorProceso(proceso.id).subscribe({
           next: (s) => {
             this.sesiones = s;
             this.cdr.detectChanges();
@@ -222,6 +255,19 @@ export class Psicologia implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  // Sesion.evolucion sigue siendo un solo TEXT en el backend; las 3 cajas del
+  // formulario se concatenan con etiquetas para no perder lo que se escribió.
+  private formatearEvolucion(): string {
+    const partes = [`Motivo de consulta: ${this.motivoConsulta}`];
+    if (this.observacionesClinicas.trim()) {
+      partes.push(`Observaciones clínicas: ${this.observacionesClinicas}`);
+    }
+    if (this.resultadoHipotesis.trim()) {
+      partes.push(`Resultado / hipótesis: ${this.resultadoHipotesis}`);
+    }
+    return partes.join('\n\n');
   }
 
   cerrarAlertaPacienteListo() {

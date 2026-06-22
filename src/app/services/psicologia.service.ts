@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { EntrevistaInicialInput, ProcesoTerapeutico } from '../models/proceso-terapeutico.model';
 
 @Injectable({ providedIn: 'root' })
 export class PsicologiaService {
@@ -21,12 +22,12 @@ export class PsicologiaService {
     return this.http.patch(`${this.base}/citas/${citaId}/estado`, { estado });
   }
 
-  getProceso(pacienteId: number): Observable<any> {
-    return this.http.get<any>(`${this.base}/pacientes/${pacienteId}/proceso`);
+  getProceso(pacienteId: number): Observable<ProcesoTerapeutico> {
+    return this.http.get<ProcesoTerapeutico>(`${this.base}/pacientes/${pacienteId}/proceso`);
   }
 
-  iniciarProceso(pacienteId: number): Observable<any> {
-    return this.http.post<any>(`${this.base}/pacientes/${pacienteId}/proceso`, {});
+  iniciarProceso(pacienteId: number, citaId: number, entrevista: EntrevistaInicialInput): Observable<ProcesoTerapeutico> {
+    return this.http.post<ProcesoTerapeutico>(`${this.base}/pacientes/${pacienteId}/proceso`, { citaId, entrevista });
   }
 
   actualizarFase(procesoId: number, faseActual: number, observaciones?: string): Observable<any> {
