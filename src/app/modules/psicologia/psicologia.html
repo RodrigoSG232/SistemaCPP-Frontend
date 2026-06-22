@@ -71,15 +71,22 @@
       <div class="card mb-md" *ngIf="mostrarHistorial">
         <h4>Historial de Sesiones ({{ sesiones.length }})</h4>
         <div *ngIf="sesiones.length === 0" class="text-muted">Sin sesiones registradas aún.</div>
-        <div class="sesion-item" *ngFor="let s of sesiones">
-          <div class="sesion-meta">
-            <strong>{{ s.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</strong>
-            <span class="badge">Fase {{ s.faseSesion }}</span>
-          </div>
-          <div class="sesion-body">
-            <p><strong>Evolución:</strong> {{ s.evolucion }}</p>
-            <p *ngIf="s.indicacionesPaciente"><strong>Indicaciones:</strong> {{ s.indicacionesPaciente }}</p>
-            <p *ngIf="s.registradoPor"><strong>Registrado por:</strong> {{ s.registradoPor }}</p>
+        <div class="timeline" *ngIf="sesiones.length > 0">
+          <div class="timeline-item" *ngFor="let s of sesiones">
+            <div class="timeline-marker">
+              <div class="timeline-dot">{{ s.faseSesion }}</div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content card">
+              <div class="sesion-meta">
+                <strong>{{ s.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</strong>
+              </div>
+              <div class="sesion-body">
+                <p><strong>Evolución:</strong> {{ s.evolucion }}</p>
+                <p *ngIf="s.indicacionesPaciente"><strong>Indicaciones:</strong> {{ s.indicacionesPaciente }}</p>
+                <p *ngIf="s.registradoPor"><strong>Registrado por:</strong> {{ s.registradoPor }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -98,7 +105,7 @@
           </div>
           <div class="phase-selector">
             <select [(ngModel)]="faseSeleccionada" (change)="actualizarFase()">
-              <option *ngFor="let k of fasesKeys" [value]="k">{{ fases[k].nombre }}</option>
+              <option *ngFor="let k of fasesKeys" [ngValue]="k">{{ fases[k].nombre }}</option>
             </select>
           </div>
         </div>

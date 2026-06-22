@@ -157,6 +157,11 @@ export class Psicologia implements OnInit, OnDestroy {
     this.psicologiaService.actualizarFase(this.proceso.id, this.faseSeleccionada).subscribe({
       next: (proc) => {
         this.proceso = proc;
+        this.errorSesion = '';
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.errorSesion = err.error?.error || 'No se pudo actualizar la fase del proceso.';
         this.cdr.detectChanges();
       }
     });

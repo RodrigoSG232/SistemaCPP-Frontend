@@ -396,6 +396,13 @@
 .sesion-item { border: 1px solid var(--border-light); border-radius: var(--radius-sm); padding: 1rem; margin-bottom: 0.75rem; }
 .sesion-meta { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
 .sesion-body p { margin: 0.25rem 0; font-size: 0.875rem; color: var(--text-main); }
+.timeline { display: flex; flex-direction: column; }
+.timeline-item { display: flex; gap: 1rem; }
+.timeline-marker { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+.timeline-dot { width: 36px; height: 36px; min-height: 36px; border-radius: 50%; background: var(--brand-primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+.timeline-line { flex: 1; width: 2px; background: var(--border-light); margin: 4px 0; min-height: 0.5rem; }
+.timeline-item:last-child .timeline-line { visibility: hidden; }
+.timeline-content { flex: 1; margin-bottom: 1.5rem; }
 .no-proceso { text-align: center; padding: 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
 .no-proceso h4 { margin: 0; }
 .no-proceso svg { color: var(--text-muted); }
