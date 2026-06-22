@@ -6,7 +6,7 @@
   grid-template-columns: 320px 1fr;
   gap: 2rem;
   padding: 2rem;
-  height: calc(100vh - 70px);
+  min-height: calc(100vh - 70px);
   background-color: var(--bg-app);
   box-sizing: border-box;
 }
@@ -19,7 +19,6 @@
 }
 
 .gestion-panel {
-  overflow-y: auto;
   padding-right: 1rem;
 }
 
@@ -35,7 +34,7 @@
 
 .ticket-actual-card {
   background: var(--brand-primary);
-  color: var(--bg-card);
+  color: var(--text-on-brand);
   padding: 2rem;
   border-radius: var(--radius-lg);
   text-align: center;
@@ -106,7 +105,7 @@
    ========================================= */
 .btn-primary {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-brand);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
@@ -178,6 +177,11 @@
 .card h4 {
   margin: 0 0 1rem 0;
   color: var(--text-main);
+}
+
+.app-form-panel {
+  overflow: hidden;
+  padding: 0;
 }
 
 .action-cards-grid {
@@ -297,18 +301,18 @@
 }
 
 .field-error {
-  color: #e03131;
+  color: var(--danger);
   font-size: 0.75rem;
   margin-top: 0.2rem;
 }
 
 .input-invalid {
-  border-color: #e03131 !important;
-  background-color: #fff5f5;
+  border-color: var(--danger) !important;
+  background-color: var(--danger-soft);
 }
 
 .input-invalid:focus {
-  box-shadow: 0 0 0 3px rgba(224, 49, 49, 0.12);
+  box-shadow: 0 0 0 3px var(--danger-focus);
 }
 
 /* =========================================
@@ -360,28 +364,28 @@
 }
 
 .estado-pendiente_pago {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--warning-bg);
+  color: var(--warning-text);
 }
 
 .estado-pagada {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--success-bg);
+  color: var(--success-text);
 }
 
 .estado-en_piso {
-  background: #ccfbf1;
-  color: #0f766e;
+  background: var(--teal-bg);
+  color: var(--teal-text);
 }
 
 .estado-atendida {
-  background: #dbeafe;
-  color: #1e40af;
+  background: var(--info-bg);
+  color: var(--info-text);
 }
 
 .estado-cancelada {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger-text);
 }
 
 /* Nota: .selected-patient se sobrescribe abajo en la sec 7 */
@@ -409,12 +413,12 @@
 }
 
 .success-card svg {
-  color: #10b981;
+  color: var(--success-icon);
   margin-bottom: 1rem;
 }
 
 .success-card h3 {
-  color: #065f46;
+  color: var(--success-text);
   margin-bottom: 0.5rem;
 }
 
@@ -548,9 +552,9 @@
 /* Caja de advertencia (Amarilla) de disponibilidad */
 .warning-block {
   padding: 1.5rem;
-  background-color: #fff9db; 
+  background-color: var(--warning-soft);
   border-radius: var(--radius-md);
-  border: 1px solid #fab005; 
+  border: 1px solid var(--warning-border);
   color: var(--text-main);
 }
 
@@ -566,7 +570,7 @@
 
 /* Color rojo para los asteriscos y textos de error en vivo */
 .text-danger {
-  color: #e03131;
+  color: var(--danger);
 }
 
 /* =========================================
@@ -646,8 +650,8 @@
 }
 
 .btn-danger {
-  background: #dc2626;
-  color: #fff;
+  background: var(--danger-action);
+  color: var(--text-on-brand);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
@@ -657,7 +661,7 @@
 }
 
 .btn-danger:hover {
-  background: #b91c1c;
+  background: var(--danger-action-hover);
 }
 
 .btn-primary:disabled,
@@ -698,28 +702,28 @@
 }
 
 :host ::ng-deep .fc-estado-pendiente_pago {
-  background: #f59e0b !important;
-  color: #111827 !important;
+  background: var(--warning-strong) !important;
+  color: var(--text-strong) !important;
 }
 
 :host ::ng-deep .fc-estado-pagada {
-  background: #10b981 !important;
-  color: #fff !important;
+  background: var(--success-icon) !important;
+  color: var(--text-on-brand) !important;
 }
 
 :host ::ng-deep .fc-estado-en_piso {
-  background: #0d9488 !important;
-  color: #fff !important;
+  background: var(--brand-primary) !important;
+  color: var(--text-on-brand) !important;
 }
 
 :host ::ng-deep .fc-estado-atendida {
-  background: #3b82f6 !important;
-  color: #fff !important;
+  background: var(--info-text) !important;
+  color: var(--text-on-brand) !important;
 }
 
 :host ::ng-deep .fc-estado-cancelada {
-  background: #ef4444 !important;
-  color: #fff !important;
+  background: var(--danger) !important;
+  color: var(--text-on-brand) !important;
 }
 
 @media (max-width: 1100px) {
@@ -735,12 +739,91 @@
 @media (max-width: 760px) {
   .recepcion-container {
     grid-template-columns: 1fr;
-    height: auto;
+    gap: 1rem;
+    padding: 1rem;
+    min-height: auto;
+  }
+
+  .ticket-panel,
+  .gestion-panel {
+    gap: 1rem;
+  }
+
+  .gestion-panel {
+    padding-right: 0;
+  }
+
+  .card:not(.app-form-panel),
+  .action-card,
+  .ticket-actual-card,
+  .ticket-vacio-card,
+  .ticket-queue,
+  .warning-block,
+  .selected-patient-block {
+    padding: 1rem;
+  }
+
+  .form-grid-2,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .span-2 {
+    grid-column: auto;
+  }
+
+  .search-row,
+  .header-row,
+  .card-title-row,
+  .paciente-detail-header,
+  .action-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .input-with-icon {
+    max-width: none;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .search-row .btn-primary,
+  .search-row .btn-secondary,
+  .paciente-detail-header .btn-primary,
+  .action-footer .btn-primary {
+    justify-content: center;
+    width: 100%;
+  }
+
+  .data-table {
+    min-width: 680px;
+  }
+
+  .calendar-card {
+    overflow-x: auto;
   }
 
   :host ::ng-deep .fc .fc-toolbar {
     align-items: stretch;
     flex-direction: column;
     gap: 0.75rem;
+  }
+
+  :host ::ng-deep .fc {
+    min-width: 640px;
+  }
+}
+
+@media (max-width: 480px) {
+  .action-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ticket-actual-card h1 {
+    font-size: 2.4rem;
+  }
+
+  .success-card {
+    padding: 2rem 1rem;
   }
 }

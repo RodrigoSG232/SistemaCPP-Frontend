@@ -1,5 +1,5 @@
 .landing-home {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   padding-top: 90px;
 }
 
@@ -12,10 +12,10 @@
   background-image:
     linear-gradient(
       90deg,
-      rgba(255, 255, 255, 0.92) 0%,
-      rgba(255, 255, 255, 0.75) 32%,
-      rgba(255, 255, 255, 0.18) 68%,
-      rgba(255, 255, 255, 0.04) 100%
+      var(--hero-overlay-strong) 0%,
+      var(--hero-overlay-mid) 32%,
+      var(--hero-overlay-soft) 68%,
+      var(--hero-overlay-faint) 100%
     ),
     url('/assets/landing/hero_psicologia.png');
   background-size: cover;
@@ -35,7 +35,7 @@
 }
 
 .home-hero__content h1 {
-  color: #263f60;
+  color: var(--landing-primary);
   font-size: 2.35rem;
   font-weight: 900;
   line-height: 1.08;
@@ -65,24 +65,24 @@
 }
 
 .home-hero__button--primary {
-  background-color: #6fa4a8;
-  color: #ffffff;
+  background-color: var(--landing-accent);
+  color: var(--text-on-brand);
 }
 
 .home-hero__button--primary:hover {
-  background-color: #5b9095;
-  color: #ffffff;
+  background-color: var(--landing-accent-hover);
+  color: var(--text-on-brand);
   transform: translateY(-2px);
 }
 
 .home-hero__button--secondary {
-  background-color: #274a78;
-  color: #ffffff;
+  background-color: var(--landing-cta);
+  color: var(--text-on-brand);
 }
 
 .home-hero__button--secondary:hover {
-  background-color: #1f3d65;
-  color: #ffffff;
+  background-color: var(--landing-primary-hover);
+  color: var(--text-on-brand);
   transform: translateY(-2px);
 }
 
@@ -91,7 +91,7 @@
 ========================= */
 
 .home-intro {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   padding: 3.2rem 0 3.5rem;
   text-align: center;
 }
@@ -101,7 +101,7 @@
 }
 
 .home-intro h2 {
-  color: #273f63;
+  color: var(--landing-primary);
   font-size: 2.65rem;
   font-weight: 800;
   letter-spacing: 0.03rem;
@@ -109,14 +109,14 @@
 }
 
 .home-intro__subtitle {
-  color: #3f4756;
+  color: var(--landing-secondary);
   font-size: 1rem;
   font-weight: 700;
   margin-bottom: 1.6rem;
 }
 
 .home-intro__text {
-  color: #3f4756;
+  color: var(--landing-secondary);
   font-size: 1rem;
   line-height: 1.7;
   margin: 0 auto 1.2rem;
@@ -132,7 +132,7 @@
 ========================= */
 
 .home-specialties {
-  background-color: #f5f6f8;
+  background-color: var(--landing-surface);
   padding: 3rem 0 4rem;
 }
 
@@ -141,7 +141,7 @@
 }
 
 .home-specialties h2 {
-  color: #273f63;
+  color: var(--landing-primary);
   text-align: center;
   font-size: 1.85rem;
   font-weight: 800;
@@ -170,7 +170,7 @@
   transform: translateY(-50%);
   border: none;
   background-color: transparent;
-  color: #3f4756;
+  color: var(--landing-secondary);
   font-size: 3rem;
   font-weight: 300;
   line-height: 1;
@@ -180,7 +180,7 @@
 }
 
 .home-carousel__control:hover {
-  color: #638f96;
+  color: var(--landing-accent-hover);
   transform: translateY(-50%) scale(1.08);
 }
 
@@ -197,17 +197,17 @@
 ========================= */
 
 .specialty-card {
-  background-color: #ffffff;
+  background-color: var(--bg-card);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-md);
   height: 100%;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .specialty-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  box-shadow: var(--shadow-lg);
 }
 
 .specialty-card__image {
@@ -215,7 +215,7 @@
   height: 145px;
   object-fit: cover;
   display: block;
-  background-color: #d9dee5;
+  background-color: var(--bg-muted);
 }
 
 .specialty-card__body {
@@ -223,14 +223,14 @@
 }
 
 .specialty-card__body h3 {
-  color: #1f2937;
+  color: var(--text-strong);
   font-size: 0.95rem;
   font-weight: 800;
   margin-bottom: 0.7rem;
 }
 
 .specialty-card__body p {
-  color: #4b5563;
+  color: var(--text-secondary);
   font-size: 0.82rem;
   line-height: 1.45;
   margin: 0;
@@ -274,8 +274,8 @@
     background-image:
       linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.94) 0%,
-        rgba(255, 255, 255, 0.86) 100%
+        var(--hero-overlay-mobile-strong) 0%,
+        var(--hero-overlay-mobile-soft) 100%
       ),
       url('/assets/landing/hero_psicologia.png');
   }

@@ -2,80 +2,82 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-  background-color: #f0f4f8;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: var(--bg-page-soft);
 }
 
 .recuperar-card {
-  background: white;
+  background: var(--bg-card);
   width: 100%;
   max-width: 420px;
-  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-lg);
 }
 
 .brand { text-align: center; margin-bottom: 1.5rem; }
-.brand h2 { color: #2d8a7b; margin: 0; }
-.brand p { color: #888; font-size: 0.875rem; margin: 0.25rem 0 0; }
+.brand h2 { color: var(--brand-primary); margin: 0; }
+.brand p { color: var(--text-muted); font-size: 0.875rem; margin: 0.25rem 0 0; }
 
-.instruccion { color: #555; font-size: 0.9rem; margin-bottom: 1.5rem; }
+.instruccion { color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem; }
 
 .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
-.form-group label { font-size: 0.875rem; font-weight: 500; color: #444; }
+.form-group label { font-size: 0.875rem; font-weight: 500; color: var(--text-main); }
 .form-group input {
   padding: 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-md);
   font-size: 1rem;
   outline: none;
   transition: border-color 0.2s;
 }
-.form-group input:focus { border-color: #2d8a7b; }
+.form-group input:focus { border-color: var(--brand-primary); }
 
 .btn-primary {
   width: 100%;
   padding: 0.85rem;
-  background: #2d8a7b;
-  color: white;
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   margin-top: 0.5rem;
   transition: background 0.2s;
 }
-.btn-primary:hover { background: #236b5f; }
+.btn-primary:hover { background: var(--brand-hover); }
 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .btn-volver {
   width: 100%;
   padding: 0.6rem;
   background: transparent;
-  color: #888;
+  color: var(--text-muted);
   border: none;
   cursor: pointer;
   margin-top: 1rem;
   font-size: 0.875rem;
 }
-.btn-volver:hover { color: #2d8a7b; }
+.btn-volver:hover { color: var(--brand-primary); }
 
 .error-message {
-  background: #fff5f5;
-  color: #e53e3e;
+  background: var(--danger-soft);
+  color: var(--danger);
   padding: 0.6rem 0.75rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 0.875rem;
-  border: 1px solid #feb2b2;
+  border: 1px solid var(--danger-border);
   margin-bottom: 0.75rem;
 }
 
 .exito { text-align: center; padding: 1rem 0; }
 .exito-icon {
   width: 60px; height: 60px;
-  background: #2d8a7b;
-  color: white;
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -83,5 +85,5 @@
   font-size: 1.5rem;
   margin: 0 auto 1rem;
 }
-.exito h3 { color: #2d8a7b; margin: 0 0 0.5rem; }
-.exito p { color: #888; font-size: 0.875rem; }
+.exito h3 { color: var(--brand-primary); margin: 0 0 0.5rem; }
+.exito p { color: var(--text-muted); font-size: 0.875rem; }

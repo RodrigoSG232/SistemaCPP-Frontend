@@ -8,10 +8,11 @@
 }
 
 .card {
-  background: white;
-  border-radius: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .emit-panel { text-align: center; }
@@ -19,10 +20,10 @@
 .emit-panel h2 { margin-bottom: 0.5rem; }
 
 .btn-primary {
-  background: #0d9488;
-  color: white;
+  background: var(--brand-primary);
+  color: var(--text-on-brand);
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   padding: 0.75rem 2rem;
   font-size: 1rem;
   cursor: pointer;
@@ -33,17 +34,17 @@
 
 .btn-secondary {
   background: transparent;
-  border: 1px solid #0d9488;
-  color: #0d9488;
-  border-radius: 8px;
+  border: 1px solid var(--brand-primary);
+  color: var(--brand-primary);
+  border-radius: var(--radius-md);
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
 
 .btn-outline {
   background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-sm);
   padding: 0.4rem 0.8rem;
   cursor: pointer;
 }
@@ -61,7 +62,7 @@
 .ticket-numero {
   font-size: 3rem;
   font-weight: bold;
-  color: #0d9488;
+  color: var(--brand-primary);
 }
 
 .lista-header {
@@ -71,13 +72,50 @@
   margin-bottom: 1rem;
 }
 
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table { width: 100%; border-collapse: collapse; }
-th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #f0f0f0; }
-th { font-weight: 600; color: #666; font-size: 0.85rem; }
+.table-responsive table { min-width: 520px; }
+th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid var(--border-light); }
+th { font-weight: 600; color: var(--text-muted); font-size: 0.85rem; }
 
 .badge { padding: 0.25rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-.badge-espera { background: #fef3c7; color: #92400e; }
-.badge-en_atencion { background: #d1fae5; color: #065f46; }
+.badge-espera { background: var(--warning-bg); color: var(--warning-text); }
+.badge-en_atencion { background: var(--success-bg); color: var(--success-text); }
 
-.empty { text-align: center; color: #999; padding: 2rem; }
-.text-muted { color: #666; font-size: 0.9rem; }
+.empty { text-align: center; color: var(--text-muted); padding: 2rem; }
+.text-muted { color: var(--text-muted); font-size: 0.9rem; }
+
+@media (max-width: 600px) {
+  .anfitriona-container {
+    padding: 1rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .lista-header {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-large {
+    width: 100%;
+  }
+
+  .btn-large {
+    padding: 0.9rem 1rem;
+  }
+
+  .ticket-numero {
+    font-size: 2.5rem;
+  }
+}

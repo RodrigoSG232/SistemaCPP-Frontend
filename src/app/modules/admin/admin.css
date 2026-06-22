@@ -5,7 +5,18 @@
 .admin-card {
   margin-top: 1rem;
   padding: 1.5rem;
-  border-radius: 12px;
-  background: #ffffff;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-md);
+}
+
+@media (max-width: 600px) {
+  .admin-page {
+    padding: 1rem;
+  }
+
+  .admin-card {
+    padding: 1rem;
+  }
 }

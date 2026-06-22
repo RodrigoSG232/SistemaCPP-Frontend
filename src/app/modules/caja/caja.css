@@ -85,7 +85,7 @@
 
 .btn-primary {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-brand);
   border: none;
   padding: 0.75rem 1.5rem;
   border-radius: var(--radius-md);
@@ -124,7 +124,11 @@
 
 .btn-outline-small:hover {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-brand);
+}
+
+.btn-icon-left {
+  margin-right: 8px;
 }
 
 .table-section h3 {
@@ -132,8 +136,14 @@
   color: var(--text-main);
 }
 
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .data-table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
 }
 
@@ -156,7 +166,7 @@
 
 .amount-cell {
   font-weight: bold;
-  color: #dd6b20;
+  color: var(--warning-amount);
 }
 
 .payment-section {
@@ -211,12 +221,12 @@
 
 .payment-card:hover {
   border-color: var(--brand-light);
-  background-color: #e6fffa;
+  background-color: var(--brand-subtle);
 }
 
 .payment-card.active {
   border-color: var(--brand-primary);
-  background-color: #e6fffa;
+  background-color: var(--brand-subtle);
   color: var(--brand-primary);
   font-weight: bold;
 }
@@ -239,27 +249,27 @@
 .badge-count { background: var(--brand-light); color: var(--brand-hover); padding: 0.2rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
 .text-xs { font-size: 0.75rem; }
 .estado-badge { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
-.estado-badge.estado-pendiente { background: #fef3c7; color: #92400e; }
-.estado-badge.estado-pagado { background: #d1fae5; color: #065f46; }
-.error-message { background: #fee2e2; color: #991b1b; padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; }
+.estado-badge.estado-pendiente { background: var(--warning-bg); color: var(--warning-text); }
+.estado-badge.estado-pagado { background: var(--success-bg); color: var(--success-text); }
+.error-message { background: var(--danger-bg); color: var(--danger-text); padding: 0.6rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; }
 .mt-sm { margin-top: 0.5rem; }
 .empty-results { text-align: center; padding: 2rem; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
 .payment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 1.5rem 0; }
 .payment-col { display: flex; flex-direction: column; gap: 0.75rem; }
 .form-label { font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); }
 .comprobante-card { text-align: center; padding: 3rem 2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
-.comprobante-check svg { color: #10b981; }
-.comprobante-card h3 { color: #065f46; margin: 0; font-size: 1.5rem; }
+.comprobante-check svg { color: var(--success-icon); }
+.comprobante-card h3 { color: var(--success-text); margin: 0; font-size: 1.5rem; }
 .comprobante-detail { background: var(--bg-app); border-radius: var(--radius-sm); padding: 1rem 1.5rem; width: 100%; max-width: 360px; }
 .comprobante-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.875rem; }
 .comprobante-row:last-child { border: none; }
-.monto-pagado { color: #065f46; font-size: 1.1rem; }
+.monto-pagado { color: var(--success-text); font-size: 1.1rem; }
 .receipt-actions { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.45);
+  background: var(--overlay-backdrop);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -272,7 +282,7 @@
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.22);
+  box-shadow: var(--shadow-modal);
   padding: 1.25rem;
 }
 
@@ -364,6 +374,12 @@
     flex-direction: column;
   }
 
+  .table-header-row,
+  .action-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .summary-row {
     flex-direction: column;
     gap: 0.2rem;
@@ -378,6 +394,7 @@
   }
 
   .modal-actions button,
+  .action-footer button,
   .receipt-actions button {
     width: 100%;
   }

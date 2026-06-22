@@ -26,23 +26,25 @@
 
     <div *ngIf="tickets.length === 0" class="empty">No hay tickets emitidos hoy.</div>
 
-    <table *ngIf="tickets.length > 0">
-      <thead>
-        <tr>
-          <th>Número</th>
-          <th>Hora</th>
-          <th>Estado</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let t of tickets">
-          <td><strong>{{ t.numero }}</strong></td>
-          <td>{{ t.fechaEmision | date:'HH:mm' }}</td>
-          <td><span class="badge badge-{{ t.estado | lowercase }}">{{ t.estado }}</span></td>
-          <td><button class="btn-icon" (click)="imprimirTicket(t)">🖨️</button></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="table-responsive" *ngIf="tickets.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Hora</th>
+            <th>Estado</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let t of tickets">
+            <td><strong>{{ t.numero }}</strong></td>
+            <td>{{ t.fechaEmision | date:'HH:mm' }}</td>
+            <td><span class="badge badge-{{ t.estado | lowercase }}">{{ t.estado }}</span></td>
+            <td><button class="btn-icon" (click)="imprimirTicket(t)">🖨️</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>

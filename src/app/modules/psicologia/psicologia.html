@@ -110,7 +110,7 @@
           </div>
         </div>
         <div class="phase-description">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px;flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <svg class="phase-description-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
           {{ faseInfo.descripcion }}
         </div>
       </div>
@@ -152,7 +152,7 @@
       <div class="action-footer" *ngIf="citaActiva.estado !== 'ATENDIDA'">
         <div class="error-message" *ngIf="errorSesion">{{ errorSesion }}</div>
         <button class="btn-primary btn-large" (click)="guardarFormularioClinico()" [disabled]="guardandoSesion">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:8px"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          <svg class="btn-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           {{ guardandoSesion ? (proceso ? 'Guardando...' : 'Iniciando...') : (proceso ? 'Guardar Sesión' : 'Iniciar Proceso Terapéutico') }}
         </button>
       </div>

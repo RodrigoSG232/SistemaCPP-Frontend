@@ -297,13 +297,13 @@
       </div>
     </div>
 
-    <div *ngIf="vistaActual === 'cita'" class="card" style="padding: 0; overflow: hidden;">
+    <div *ngIf="vistaActual === 'cita'" class="card app-form-panel">
       
-      <div class="card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border-light); background: #fff;">
-        <h3 style="margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-main);">Agendar Cita</h3>
+      <div class="app-form-panel__header">
+        <h3>Agendar Cita</h3>
       </div>
 
-      <div class="card-body" style="padding: 2rem;">
+      <div class="app-form-panel__body">
         
         <div class="form-group mb-lg" *ngIf="!cita.pacienteId">
           <label>Buscar Paciente <span class="text-danger">*</span></label>
@@ -324,15 +324,15 @@
         </div>
 
         <div class="selected-patient-block mb-lg" *ngIf="cita.pacienteId">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div class="app-summary-row">
             <div>
-              <p class="text-muted" style="margin: 0 0 0.25rem 0; font-size: 0.85rem;">Paciente seleccionado:</p>
-              <strong style="font-size: 1.1rem; color: var(--text-main); display: block; margin-bottom: 0.25rem;">{{ busquedaPaciente }}</strong>
-              <p class="text-muted" style="margin: 0; font-size: 0.85rem;">
+              <p class="app-summary-label">Paciente seleccionado:</p>
+              <strong class="app-summary-name">{{ busquedaPaciente }}</strong>
+              <p class="app-summary-meta">
                 DNI: {{ pacienteSeleccionado?.dni || '---' }} | Historia: {{ pacienteSeleccionado?.numeroHistoria || '---' }}
               </p>
             </div>
-            <button class="btn-outline-small" style="background: white;" (click)="cita.pacienteId = null; pacienteSeleccionado = null">Cambiar</button>
+            <button class="btn-outline-small app-summary-change" (click)="cita.pacienteId = null; pacienteSeleccionado = null">Cambiar</button>
           </div>
         </div>
 
@@ -391,12 +391,12 @@
 
           <div class="warning-block mt-lg" *ngIf="cita.psicologoId && cita.fecha">
             <h4>Disponibilidad del Psicólogo</h4>
-            <p *ngIf="horasDisponibles.length > 0" style="color: #0b7285;">Seleccione una hora disponible para proceder.</p>
-            <p *ngIf="horasDisponibles.length === 0" style="color: #e03131;">No hay horas disponibles ese día.</p>
+            <p *ngIf="horasDisponibles.length > 0" class="app-text-success">Seleccione una hora disponible para proceder.</p>
+            <p *ngIf="horasDisponibles.length === 0" class="app-text-danger">No hay horas disponibles ese día.</p>
           </div>
           <div class="warning-block mt-lg" *ngIf="!cita.psicologoId || !cita.fecha">
             <h4>Disponibilidad del Psicólogo</h4>
-            <p style="color: #868e96;">Seleccione un psicólogo y fecha para ver disponibilidad</p>
+            <p class="app-text-muted">Seleccione un psicólogo y fecha para ver disponibilidad</p>
           </div>
 
           <div class="error-message mt-md" *ngIf="errorCita">{{ errorCita }}</div>
@@ -410,18 +410,18 @@
 
       </div>
 
-      <div class="card-footer" style="padding: 1.5rem 2rem; background: #f8f9fa; border-top: 1px solid var(--border-light);" *ngIf="!mensajeCita">
-        <div style="display: flex; gap: 1rem;">
-          <button class="btn-primary" style="flex: 1; display: flex; justify-content: center; align-items: center; gap: 0.5rem; padding: 0.8rem;" (click)="registrarCita()" [disabled]="agendando">
+      <div class="app-form-panel__footer" *ngIf="!mensajeCita">
+        <div class="app-form-panel__actions">
+          <button class="btn-primary app-form-panel__submit" (click)="registrarCita()" [disabled]="agendando">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
             {{ agendando ? 'Registrando...' : 'Generar Cita' }}
           </button>
-          <button class="btn-secondary" style="padding: 0.8rem 2rem;" (click)="volver()">Cancelar</button>
+          <button class="btn-secondary app-form-panel__cancel" (click)="volver()">Cancelar</button>
         </div>
       </div>
       
-      <div class="card-footer" style="padding: 1.5rem 2rem; background: #f8f9fa; border-top: 1px solid var(--border-light);" *ngIf="mensajeCita">
-        <div style="display: flex; gap: 1rem; justify-content: center;">
+      <div class="app-form-panel__footer" *ngIf="mensajeCita">
+        <div class="app-form-panel__actions app-form-panel__actions--center">
           <button class="btn-primary" (click)="irAAgendarCita()">Agendar Nueva Cita</button>
           <button class="btn-secondary" (click)="volver()">Volver al Inicio</button>
         </div>

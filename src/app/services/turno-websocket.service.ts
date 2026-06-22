@@ -1,5 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface TurnoNotificacion {
   citaId: number;
@@ -45,10 +46,11 @@ export class TurnoWebsocketService implements OnDestroy {
       return;
     }
 
-    this.socket = new WebSocket(this.getWsUrl());
+    const wsUrl = this.getWsUrl();
+    this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
-      this.enviarFrame(`CONNECT\naccept-version:1.2\nheart-beat:0,0\nhost:${window.location.host}\n\n`);
+      this.enviarFrame(`CONNECT\naccept-version:1.2\nheart-beat:0,0\nhost:${this.getWsHost(wsUrl)}\n\n`);
     };
 
     this.socket.onmessage = (event) => this.procesarFrame(event.data);
@@ -88,8 +90,26 @@ export class TurnoWebsocketService implements OnDestroy {
   }
 
   private getWsUrl(): string {
+    const configuredUrl = environment.wsUrl;
+    if (configuredUrl.startsWith('ws://') || configuredUrl.startsWith('wss://')) {
+      return configuredUrl;
+    }
+
+    if (configuredUrl.startsWith('http://') || configuredUrl.startsWith('https://')) {
+      return configuredUrl.replace(/^http/, 'ws');
+    }
+
     const protocolo = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return `${protocolo}//${window.location.host}/ws`;
+    const path = configuredUrl.startsWith('/') ? configuredUrl : `/${configuredUrl}`;
+    return `${protocolo}//${window.location.host}${path}`;
+  }
+
+  private getWsHost(wsUrl: string): string {
+    try {
+      return new URL(wsUrl).host;
+    } catch {
+      return window.location.host;
+    }
   }
 
   private procesarFrame(data: string): void {

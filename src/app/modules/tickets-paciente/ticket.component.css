@@ -5,6 +5,7 @@
 
 .ticket-wrapper {
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-app);
   display: flex;
   flex-direction: column;
@@ -84,7 +85,7 @@
 .ticket-actual-card {
   width: 100%;
   background: var(--brand-primary);
-  border-radius: 18px;
+  border-radius: var(--radius-xl);
   padding: 48px 56px 56px;
   display: flex;
   flex-direction: column;
@@ -96,7 +97,7 @@
 .ticket-label {
   font-size: 18px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-on-brand-muted);
   letter-spacing: 3px;
   text-transform: uppercase;
   margin: 0;
@@ -138,7 +139,7 @@
 .siguiente-card {
   background: var(--bg-card);
   border: 1px solid var(--border-light);
-  border-radius: 18px;
+  border-radius: var(--radius-xl);
   padding: 40px 20px;
   display: flex;
   align-items: center;

@@ -1,7 +1,7 @@
 .landing-header {
   width: 100%;
-  background-color: #ffffff;
-  box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+  background-color: var(--bg-card);
+  box-shadow: var(--shadow-sm);
   position: fixed;
   top: 0;
   left: 0;
@@ -34,14 +34,14 @@
 }
 
 .landing-header__brand-text span {
-  color: #253f5f;
+  color: var(--landing-primary);
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: 0.08rem;
 }
 
 .landing-header__brand-text small {
-  color: #6b9da1;
+  color: var(--landing-accent);
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.09rem;
@@ -58,7 +58,7 @@
 }
 
 .landing-header__nav .nav-link {
-  color: #3f4756;
+  color: var(--landing-secondary);
   font-size: 1rem;
   font-weight: 500;
   padding: 0.5rem 0;
@@ -67,7 +67,7 @@
 
 .landing-header__nav .nav-link:hover,
 .landing-header__nav .nav-link.active {
-  color: #2b4a68;
+  color: var(--landing-primary);
 }
 
 .landing-header__nav .nav-link.active::after,
@@ -75,16 +75,16 @@
   content: "";
   width: 100%;
   height: 2px;
-  background-color: #6ea1a5;
+  background-color: var(--landing-accent);
   position: absolute;
   left: 0;
   bottom: 0;
 }
 
 .landing-header__button {
-  background-color: #638f96;
-  color: #ffffff;
-  border-radius: 6px;
+  background-color: var(--landing-accent-hover);
+  color: var(--text-on-brand);
+  border-radius: var(--radius-sm);
   padding: 0.65rem 1.35rem;
   font-weight: 700;
   border: none;
@@ -92,8 +92,8 @@
 }
 
 .landing-header__button:hover {
-  background-color: #4f7d84;
-  color: #ffffff;
+  background-color: var(--landing-accent-deep);
+  color: var(--text-on-brand);
   transform: translateY(-1px);
 }
 

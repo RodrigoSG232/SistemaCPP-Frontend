@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-recuperar-contrasena',
@@ -20,6 +21,7 @@ export class RecuperarContrasena {
   mensaje = '';
   error = '';
   cargando = false;
+  private readonly authBase = `${environment.apiUrl}/auth`;
 
   constructor(
     private http: HttpClient,
@@ -31,7 +33,7 @@ export class RecuperarContrasena {
     if (!this.email) { this.error = 'Ingrese su email'; return; }
     this.cargando = true;
     this.error = '';
-    this.http.post('/api/auth/recuperar', { email: this.email }).subscribe({
+    this.http.post(`${this.authBase}/recuperar`, { email: this.email }).subscribe({
       next: () => {
         this.paso = 2;
         this.cargando = false;
@@ -51,7 +53,7 @@ export class RecuperarContrasena {
     if (this.nuevaPassword !== this.confirmarPassword) { this.error = 'Las contraseñas no coinciden'; return; }
     this.cargando = true;
     this.error = '';
-    this.http.post('/api/auth/recuperar/verificar', {
+    this.http.post(`${this.authBase}/recuperar/verificar`, {
       email: this.email,
       codigo: this.codigo,
       password: this.nuevaPassword

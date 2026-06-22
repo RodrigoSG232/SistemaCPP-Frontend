@@ -68,7 +68,7 @@
 }
 
 .metric-ready strong {
-  color: #065f46;
+  color: var(--success-text);
 }
 
 .floor-grid {
@@ -108,8 +108,8 @@
 }
 
 .badge-ready {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--success-bg);
+  color: var(--success-text);
 }
 
 .patient-list {
@@ -127,8 +127,8 @@
 }
 
 .patient-ready {
-  border-color: #a7f3d0;
-  background: #f0fdf4;
+  border-color: var(--success-border);
+  background: var(--success-soft);
 }
 
 .patient-main {
@@ -166,7 +166,7 @@
 
 .btn-primary {
   background: var(--brand-primary);
-  color: white;
+  color: var(--text-on-brand);
   justify-self: start;
 }
 
@@ -194,8 +194,8 @@
 }
 
 .estado-en_piso {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--success-bg);
+  color: var(--success-text);
 }
 
 .empty-state,
@@ -206,8 +206,8 @@
 }
 
 .error-message {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--danger-bg);
+  color: var(--danger-text);
   border-radius: var(--radius-sm);
   padding: 0.75rem 1rem;
   margin-bottom: 1rem;

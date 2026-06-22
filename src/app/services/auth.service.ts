@@ -48,10 +48,10 @@ export class AuthService {
   }
 
   getPerfil(): Observable<any> {
-  return this.http.get(`/api/auth/me`);
-}
+    return this.http.get(`${this.base}/me`);
+  }
 
   updatePerfil(data: any): Observable<any> {
-    return this.http.put(`/api/auth/me`, data);
+    return this.http.put(`${this.base}/me`, data);
   }
 }
