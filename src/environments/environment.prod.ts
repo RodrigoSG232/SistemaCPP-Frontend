@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
   apiUrl: '/api',
-  wsUrl: '/ws'
+  wsUrl: 'wss://clinica-psicologia-backend.onrender.com/ws'
 };
