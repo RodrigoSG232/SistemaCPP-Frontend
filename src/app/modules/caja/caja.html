@@ -56,6 +56,7 @@
       </div>
       <div class="form-group align-bottom">
         <button class="btn-primary full-width" (click)="buscarDeudas()" [disabled]="buscando">
+          <span *ngIf="buscando" class="loader loader-sm" aria-hidden="true"></span>
           {{ buscando ? 'Buscando...' : 'Buscar Deuda' }}
         </button>
       </div>
@@ -165,7 +166,8 @@
     <div class="action-footer">
       <button class="btn-secondary" (click)="cancelarPago()">Cancelar</button>
       <button class="btn-primary btn-large" (click)="solicitarConfirmacionPago()" [disabled]="procesando">
-        <svg class="btn-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span *ngIf="procesando" class="loader loader-sm" aria-hidden="true"></span>
+        <svg *ngIf="!procesando" class="btn-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
         Generar Comprobante
       </button>
     </div>
@@ -174,7 +176,17 @@
   <div class="modal-backdrop" *ngIf="mostrarConfirmacionPago">
     <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="confirmar-pago-titulo">
       <div class="modal-header">
-        <h3 id="confirmar-pago-titulo">Confirmar transacción</h3>
+        <div class="modal-title-group">
+          <div class="modal-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+          </div>
+          <div>
+            <h3 id="confirmar-pago-titulo">Confirmar transacción</h3>
+            <p>Revise los datos antes de emitir el comprobante.</p>
+          </div>
+        </div>
         <button class="modal-close" type="button" (click)="cerrarConfirmacionPago()" [disabled]="procesando" aria-label="Cerrar">
           ×
         </button>
@@ -212,6 +224,7 @@
           Revisar
         </button>
         <button class="btn-primary btn-large" type="button" (click)="confirmarPago()" [disabled]="procesando">
+          <span *ngIf="procesando" class="loader loader-sm" aria-hidden="true"></span>
           {{ procesando ? 'Confirmando...' : 'Confirmar pago' }}
         </button>
       </div>

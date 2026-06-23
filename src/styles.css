@@ -216,6 +216,37 @@ textarea {
   color: var(--text-muted);
 }
 
+.loader {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #fff;
+  border-right: 3px solid transparent;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+.loader-sm {
+  width: 18px;
+  height: 18px;
+  border-top-width: 2px;
+  border-right-width: 2px;
+}
+
+.loader-brand {
+  border-top-color: var(--brand-primary);
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 760px) {
   .app-form-panel__header,
   .app-form-panel__body,

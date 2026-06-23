@@ -16,6 +16,11 @@ type TicketView = Omit<TicketResponse, 'fechaEmision'> & {
   fechaEmision: Date;
   pacienteNombre?: string;
 };
+type NotificacionRecepcion = {
+  tipo: 'info' | 'error' | 'success';
+  titulo: string;
+  mensaje: string;
+};
 
 @Component({
   selector: 'app-recepcion',
@@ -36,8 +41,12 @@ export class Recepcion implements OnInit, OnDestroy {
   ticketActual: TicketView | null = null;
   colaTickets: TicketView[] = [];
   loadingTickets = false;
+  mostrarConfirmacionFinalizar = false;
+  finalizandoAtencion = false;
+  notificacionRecepcion: NotificacionRecepcion | null = null;
   private ticketsIntervalo: any;
   private actualizandoTickets = false;
+  private notificacionTimeout: any;
 
   vistaActual: Vista = 'inicio';
 
@@ -151,6 +160,9 @@ export class Recepcion implements OnInit, OnDestroy {
     if (this.ticketsIntervalo) {
       clearInterval(this.ticketsIntervalo);
     }
+    if (this.notificacionTimeout) {
+      clearTimeout(this.notificacionTimeout);
+    }
   }
 
   cargarTickets(silencioso = false) {
@@ -196,12 +208,16 @@ export class Recepcion implements OnInit, OnDestroy {
 
   llamarTicket(ticket: TicketView) {
     if (this.ticketActual) {
-      alert('Primero debe finalizar la atención actual antes de llamar otro ticket.');
+      this.mostrarNotificacion(
+        'info',
+        'Atención en curso',
+        'Primero debe finalizar la atención actual antes de llamar otro ticket.'
+      );
       return;
     }
 
     this.llamarTicketDirecto(ticket);
-}
+  }
 
   private llamarTicketDirecto(ticket: TicketView) {
     this.recepcionService.cambiarEstadoTicket(ticket.id, 'EN_ATENCION').subscribe({
@@ -215,24 +231,78 @@ export class Recepcion implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: () => {
-        alert('No se pudo llamar el ticket. Intente nuevamente.');
+        this.mostrarNotificacion(
+          'error',
+          'No se pudo llamar el ticket',
+          'Intente nuevamente en unos segundos.'
+        );
       }
     });
-}
+  }
 
   finalizarAtencion() {
     if (!this.ticketActual) return;
 
+    this.mostrarConfirmacionFinalizar = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarConfirmacionFinalizar() {
+    if (this.finalizandoAtencion) return;
+
+    this.mostrarConfirmacionFinalizar = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmarFinalizarAtencion() {
+    if (!this.ticketActual) return;
+
+    this.finalizandoAtencion = true;
+    this.cdr.detectChanges();
+
     this.recepcionService.cambiarEstadoTicket(this.ticketActual.id, 'FINALIZADO').subscribe({
       next: () => {
         this.ticketActual = null;
+        this.mostrarConfirmacionFinalizar = false;
+        this.finalizandoAtencion = false;
         this.cargarTickets();
       },
       error: () => {
-        alert('No se pudo finalizar la atención. Intente nuevamente.');
+        this.finalizandoAtencion = false;
+        this.mostrarConfirmacionFinalizar = false;
+        this.mostrarNotificacion(
+          'error',
+          'No se pudo finalizar la atención',
+          'Intente nuevamente en unos segundos.'
+        );
+        this.cdr.detectChanges();
       }
     });
-}
+  }
+
+  cerrarNotificacionRecepcion() {
+    this.notificacionRecepcion = null;
+    if (this.notificacionTimeout) {
+      clearTimeout(this.notificacionTimeout);
+      this.notificacionTimeout = null;
+    }
+    this.cdr.detectChanges();
+  }
+
+  private mostrarNotificacion(tipo: NotificacionRecepcion['tipo'], titulo: string, mensaje: string) {
+    this.notificacionRecepcion = { tipo, titulo, mensaje };
+
+    if (this.notificacionTimeout) {
+      clearTimeout(this.notificacionTimeout);
+    }
+
+    this.notificacionTimeout = setTimeout(() => {
+      this.notificacionRecepcion = null;
+      this.cdr.detectChanges();
+    }, 4500);
+
+    this.cdr.detectChanges();
+  }
 
   irAHistoria() {
     this.vistaActual = 'historia';

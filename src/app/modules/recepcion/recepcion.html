@@ -11,7 +11,9 @@
       <p *ngIf="ticketActual.pacienteNombre" class="ticket-paciente-name">
         {{ ticketActual.pacienteNombre }}
       </p>
-      <button class="btn-primary w-100" (click)="finalizarAtencion()">Finalizar Atención</button>
+      <button class="btn-primary w-100" (click)="finalizarAtencion()" [disabled]="finalizandoAtencion">
+        Finalizar Atención
+      </button>
     </div>
     <ng-template #sinAtencion>
       <div class="ticket-vacio-card">
@@ -430,4 +432,71 @@
     </div>
 
   </main>
+
+  <div class="modal-backdrop" *ngIf="mostrarConfirmacionFinalizar">
+    <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="finalizar-atencion-titulo">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 6 9 17l-5-5"/>
+            </svg>
+          </div>
+          <div>
+            <h3 id="finalizar-atencion-titulo">Finalizar atención</h3>
+            <p>Confirme que terminó la atención del ticket actual.</p>
+          </div>
+        </div>
+        <button class="modal-close" type="button" (click)="cerrarConfirmacionFinalizar()" [disabled]="finalizandoAtencion" aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <div class="confirm-summary">
+        <div class="ticket-confirm-card">
+          <span>Ticket actual</span>
+          <strong>{{ ticketActual?.numero }}</strong>
+          <small *ngIf="ticketActual?.pacienteNombre">{{ ticketActual?.pacienteNombre }}</small>
+        </div>
+        <p class="confirm-note">
+          Al finalizar, este ticket saldrá de atención activa y los tickets en espera se mantendrán en la cola.
+        </p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="cerrarConfirmacionFinalizar()" [disabled]="finalizandoAtencion">
+          Revisar
+        </button>
+        <button class="btn-primary" type="button" (click)="confirmarFinalizarAtencion()" [disabled]="finalizandoAtencion">
+          {{ finalizandoAtencion ? 'Finalizando...' : 'Finalizar atención' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="recepcion-toast toast-{{ notificacionRecepcion.tipo }}"
+    *ngIf="notificacionRecepcion"
+    role="status"
+    aria-live="polite">
+    <div class="toast-icon" aria-hidden="true">
+      <svg *ngIf="notificacionRecepcion.tipo !== 'error'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 16v-4"/>
+        <path d="M12 8h.01"/>
+      </svg>
+      <svg *ngIf="notificacionRecepcion.tipo === 'error'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v5"/>
+        <path d="M12 17h.01"/>
+      </svg>
+    </div>
+    <div class="toast-content">
+      <strong>{{ notificacionRecepcion.titulo }}</strong>
+      <span>{{ notificacionRecepcion.mensaje }}</span>
+    </div>
+    <button class="toast-close" type="button" (click)="cerrarNotificacionRecepcion()" aria-label="Cerrar notificación">
+      ×
+    </button>
+  </div>
 </div>

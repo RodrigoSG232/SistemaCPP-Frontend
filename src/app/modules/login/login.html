@@ -65,10 +65,7 @@
     <button class="btn-login" [class.loading]="cargando" [disabled]="cargando || !usuario || !contrasena" (click)="iniciarSesion()">
       <span *ngIf="!cargando">Iniciar Sesión</span>
       <span *ngIf="cargando" class="spinner-wrapper">
-        <svg class="spinner" viewBox="0 0 24 24" fill="none">
-          <circle class="spinner-track" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-          <path class="spinner-path" d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
-        </svg>
+        <span class="loader loader-sm" aria-hidden="true"></span>
         Ingresando...
       </span>
     </button>
