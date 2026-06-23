@@ -46,7 +46,9 @@ export class Psicologia implements OnInit, OnDestroy {
   fases = FASES;
   fasesKeys = [1, 2, 3, 4];
   private alertaTimeout: any;
+  private agendaInterval: any;
   private turnoSubscription?: Subscription;
+  private pacientesListosNotificados = new Set<number>();
 
   constructor(
     private psicologiaService: PsicologiaService,
@@ -56,6 +58,9 @@ export class Psicologia implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.cargarAgenda();
+    this.agendaInterval = setInterval(() => {
+      this.cargarAgenda(true);
+    }, 5000);
     this.turnoSubscription = this.turnoWebsocketService.turno$.subscribe((turno) => {
       this.mostrarAlertaPacienteListo(turno);
     });
@@ -64,6 +69,9 @@ export class Psicologia implements OnInit, OnDestroy {
   ngOnDestroy() {
     if (this.alertaTimeout) {
       clearTimeout(this.alertaTimeout);
+    }
+    if (this.agendaInterval) {
+      clearInterval(this.agendaInterval);
     }
 
     this.turnoSubscription?.unsubscribe();
@@ -78,14 +86,19 @@ export class Psicologia implements OnInit, OnDestroy {
 
     this.psicologiaService.getAgenda(this.fechaSeleccionada).subscribe({
       next: (res) => {
+        const citasActualizadas = res.citas || [];
+        if (silencioso) {
+          this.notificarPacientesListosDetectados(citasActualizadas, res);
+        }
+
         this.agenda = res;
-        this.citas = res.citas || [];
+        this.citas = citasActualizadas;
         this.loadingAgenda = false;
         if (res.psicologoId) {
           this.turnoWebsocketService.conectarPacientesListos(res.psicologoId);
         }
-        const activa = this.citas.find(c => c.estado === 'EN_CONSULTA');
-        if (activa) this.seleccionarCita(activa);
+        this.sincronizarCitaActiva();
+        this.registrarPacientesListosVistos(this.citas);
         this.cdr.detectChanges();
       },
       error: () => {
@@ -98,6 +111,7 @@ export class Psicologia implements OnInit, OnDestroy {
   onFechaChange() {
     this.citaActiva = null;
     this.proceso = null;
+    this.pacientesListosNotificados.clear();
     this.cargarAgenda();
   }
 
@@ -283,6 +297,7 @@ export class Psicologia implements OnInit, OnDestroy {
   private mostrarAlertaPacienteListo(turno: TurnoNotificacion) {
     if (turno.fecha !== this.fechaSeleccionada) return;
 
+    this.pacientesListosNotificados.add(turno.citaId);
     this.alertaPacienteListo = turno;
     this.cargarAgenda(true);
 
@@ -303,5 +318,50 @@ export class Psicologia implements OnInit, OnDestroy {
     const month = String(fecha.getMonth() + 1).padStart(2, '0');
     const day = String(fecha.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private sincronizarCitaActiva(): void {
+    if (this.citaActiva) {
+      const actualizada = this.citas.find(c => c.id === this.citaActiva.id);
+      if (actualizada) {
+        this.citaActiva = { ...this.citaActiva, ...actualizada };
+      }
+      return;
+    }
+
+    const activa = this.citas.find(c => c.estado === 'EN_CONSULTA');
+    if (activa) {
+      this.seleccionarCita(activa);
+    }
+  }
+
+  private registrarPacientesListosVistos(citas: any[]): void {
+    citas
+      .filter(cita => cita.estado === 'EN_PISO')
+      .forEach(cita => this.pacientesListosNotificados.add(cita.id));
+  }
+
+  private notificarPacientesListosDetectados(citas: any[], agenda: any): void {
+    const nuevaCitaLista = citas.find(cita =>
+      cita.estado === 'EN_PISO' && !this.pacientesListosNotificados.has(cita.id)
+    );
+
+    if (!nuevaCitaLista) return;
+
+    this.mostrarAlertaPacienteListo({
+      citaId: nuevaCitaLista.id,
+      pacienteId: nuevaCitaLista.pacienteId,
+      paciente: nuevaCitaLista.paciente,
+      pacienteDni: nuevaCitaLista.pacienteDni,
+      pacienteHc: nuevaCitaLista.pacienteHc,
+      psicologoId: agenda.psicologoId,
+      psicologo: agenda.nombreCompleto,
+      especialidad: nuevaCitaLista.especialidad,
+      fecha: nuevaCitaLista.fecha,
+      hora: nuevaCitaLista.hora,
+      estado: nuevaCitaLista.estado,
+      ticketNumero: null,
+      mensaje: 'Paciente detectado en piso'
+    });
   }
 }
