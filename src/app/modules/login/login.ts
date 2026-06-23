@@ -33,13 +33,7 @@ export class LoginComponent {
     this.errorMessage = '';
     this.authService.login({ username: this.usuario, password: this.contrasena }).subscribe({
       next: (res) => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('usuarioActual');
-        localStorage.removeItem('rol');
-
-        sessionStorage.setItem('token', res.token);
-        sessionStorage.setItem('usuarioActual', res.nombreCompleto || res.username);
-        sessionStorage.setItem('rol', res.rol);
+        this.authService.guardarSesion(res);
         this.cargando = false;
         this.router.navigate([res.ruta]);
       },

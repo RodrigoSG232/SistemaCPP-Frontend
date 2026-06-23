@@ -10,6 +10,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+  refreshToken: string;
   username: string;
   nombreCompleto: string;
   rol: string;
@@ -26,11 +27,29 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.base}/login`, req);
   }
 
+  refresh(refreshToken: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(`${this.base}/refresh`, { refreshToken });
+  }
+
+  guardarSesion(res: LoginResponse): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('usuarioActual');
+    localStorage.removeItem('rol');
+
+    sessionStorage.setItem('token', res.token);
+    sessionStorage.setItem('refreshToken', res.refreshToken);
+    sessionStorage.setItem('usuarioActual', res.nombreCompleto || res.username);
+    sessionStorage.setItem('rol', res.rol);
+  }
+
   logout(): void {
     sessionStorage.removeItem('token');
+    sessionStorage.removeItem('refreshToken');
     sessionStorage.removeItem('usuarioActual');
     sessionStorage.removeItem('rol');
     localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('usuarioActual');
     localStorage.removeItem('rol');
   }
@@ -45,6 +64,10 @@ export class AuthService {
 
   getRol(): string | null {
     return sessionStorage.getItem('rol');
+  }
+
+  getRefreshToken(): string | null {
+    return sessionStorage.getItem('refreshToken');
   }
 
   getPerfil(): Observable<any> {
