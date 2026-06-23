@@ -146,7 +146,7 @@ export class Recepcion implements OnInit, OnDestroy {
   }
 
 
-  fechaMinima = new Date().toISOString().split('T')[0];
+  fechaMinima = this.toIsoDate(new Date());
 
   ngOnInit() {
     this.cargarTickets();
@@ -567,7 +567,7 @@ export class Recepcion implements OnInit, OnDestroy {
     }
 
     // validar hora no pasada solo si la fecha es hoy
-    if (this.cita.fecha === new Date().toISOString().split('T')[0]) {
+    if (this.cita.fecha === this.toIsoDate(new Date())) {
       const ahora = new Date();
       const horaActual = `${String(ahora.getHours()).padStart(2,'0')}:${String(ahora.getMinutes()).padStart(2,'0')}`;
       if (this.cita.hora <= horaActual) {

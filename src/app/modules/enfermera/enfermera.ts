@@ -11,7 +11,7 @@ import { EnfermeraService, PacientePiso } from '../../services/enfermera.service
   styleUrl: './enfermera.css'
 })
 export class Enfermera implements OnInit, OnDestroy {
-  fechaSeleccionada = new Date().toISOString().split('T')[0];
+  fechaSeleccionada = this.toLocalDateInputValue(new Date());
   pacientes: PacientePiso[] = [];
   cargando = false;
   error = '';
@@ -90,5 +90,12 @@ export class Enfermera implements OnInit, OnDestroy {
         this.cdr.detectChanges();
       }
     });
+  }
+
+  private toLocalDateInputValue(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 }
