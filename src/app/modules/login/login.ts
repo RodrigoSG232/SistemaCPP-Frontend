@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -31,19 +32,19 @@ export class LoginComponent {
     }
     this.cargando = true;
     this.errorMessage = '';
-    this.authService.login({ username: this.usuario, password: this.contrasena }).subscribe({
-      next: (res) => {
-        this.authService.guardarSesion(res);
-        this.cargando = false;
-        this.router.navigate([res.ruta]);
-      },
-      error: (err) => {
-        this.cargando = false;
-        this.errorMessage = err.status === 401
-          ? 'Usuario o contraseña incorrectos.'
-          : 'Error de conexión con el servidor.';
-      }
-    });
+    this.authService.login({ username: this.usuario, password: this.contrasena })
+      .pipe(finalize(() => this.cargando = false))
+      .subscribe({
+        next: (res) => {
+          this.authService.guardarSesion(res);
+          this.router.navigate([res.ruta]);
+        },
+        error: (err) => {
+          this.errorMessage = err.status === 401
+            ? 'Usuario o contraseña incorrectos.'
+            : 'Error de conexión con el servidor.';
+        }
+      });
   }
 
   volverInicio(): void {

@@ -62,6 +62,10 @@
       </div>
     </div>
 
+    <div *ngIf="errorMessage" class="login-error" role="alert" aria-live="polite">
+      {{ errorMessage }}
+    </div>
+
     <button class="btn-login" [class.loading]="cargando" [disabled]="cargando || !usuario || !contrasena" (click)="iniciarSesion()">
       <span *ngIf="!cargando">Iniciar Sesión</span>
       <span *ngIf="cargando" class="spinner-wrapper">

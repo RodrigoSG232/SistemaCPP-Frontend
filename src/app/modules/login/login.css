@@ -246,6 +246,18 @@
   opacity: 0.85;
 }
 
+.login-error {
+  margin: 0 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--danger-border);
+  border-radius: 10px;
+  background: var(--danger-soft);
+  color: var(--danger-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 /* ─── Spinner ────────────────────────────────────────────────────────── */
 .spinner-wrapper {
   display: flex;
