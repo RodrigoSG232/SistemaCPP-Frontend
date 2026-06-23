@@ -18,39 +18,38 @@
       <button
         class="navbar-toggler"
         type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#landingNavbar"
         aria-controls="landingNavbar"
-        aria-expanded="false"
+        [attr.aria-expanded]="menuAbierto"
         aria-label="Abrir menú de navegación"
+        (click)="toggleMenu()"
       >
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse landing-header__menu" id="landingNavbar">
+      <div class="collapse navbar-collapse landing-header__menu" [class.show]="menuAbierto" id="landingNavbar">
         <ul class="navbar-nav mb-2 mb-lg-0 landing-header__nav">
           <li class="nav-item">
-            <a class="nav-link active" href="#inicio">Inicio</a>
+            <a class="nav-link active" href="#inicio" (click)="cerrarMenu()">Inicio</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="#nosotros">Nosotros</a>
+            <a class="nav-link" href="#nosotros" (click)="cerrarMenu()">Nosotros</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="#especialidades">Especialidades</a>
+            <a class="nav-link" href="#especialidades" (click)="cerrarMenu()">Especialidades</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="#sedes">Sedes</a>
+            <a class="nav-link" href="#sedes" (click)="cerrarMenu()">Sedes</a>
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="#contacto">Contacto</a>
+            <a class="nav-link" href="#contacto" (click)="cerrarMenu()">Contacto</a>
           </li>
         </ul>
 
-        <a routerLink="/login" class="btn landing-header__button">
+        <a routerLink="/login" class="btn landing-header__button" (click)="cerrarMenu()">
           Acceder
         </a>
       </div>

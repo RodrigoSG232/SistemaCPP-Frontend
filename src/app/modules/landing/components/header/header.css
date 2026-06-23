@@ -98,6 +98,15 @@
 }
 
 @media (max-width: 991px) {
+  .navbar-toggler {
+    border-color: var(--border-light);
+    box-shadow: none;
+  }
+
+  .navbar-toggler:focus {
+    box-shadow: 0 0 0 3px var(--brand-focus);
+  }
+
   .landing-header__container {
     min-height: auto;
     padding-top: 0.8rem;
@@ -121,10 +130,17 @@
     align-items: flex-start;
     gap: 1rem;
     padding-top: 1rem;
+    border-top: 1px solid var(--border-light);
+    margin-top: 0.8rem;
   }
 
   .landing-header__nav {
     gap: 0.4rem;
+    width: 100%;
+  }
+
+  .landing-header__nav .nav-link {
+    padding: 0.65rem 0;
   }
 
   .landing-header__button {
