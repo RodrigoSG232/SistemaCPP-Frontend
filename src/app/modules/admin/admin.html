@@ -1,9 +1,167 @@
 <section class="admin-page">
-  <h1>Sección Admin</h1>
-  <p>Módulo de mantenimiento para el perfil administrador.</p>
+  <header class="admin-header">
+    <div>
+      <p class="admin-eyebrow">Administración</p>
+      <h1>Gestión del sistema</h1>
+      <p class="text-muted">Mantenimiento de usuarios, roles y accesos internos.</p>
+    </div>
+    <button class="btn-secondary" type="button" (click)="cargarDatos()" [disabled]="cargando">
+      {{ cargando ? 'Actualizando...' : 'Actualizar' }}
+    </button>
+  </header>
 
-  <div class="admin-card">
-    <h2>Mantenimiento</h2>
-    <p>Aquí se implementará la gestión de usuarios, roles y módulos.</p>
+  <div class="admin-stats" *ngIf="resumen">
+    <div class="stat-item">
+      <span>Usuarios</span>
+      <strong>{{ resumen.usuarios }}</strong>
+    </div>
+    <div class="stat-item">
+      <span>Activos</span>
+      <strong>{{ resumen.activos }}</strong>
+    </div>
+    <div class="stat-item">
+      <span>Inactivos</span>
+      <strong>{{ resumen.inactivos }}</strong>
+    </div>
+    <div class="stat-item">
+      <span>Roles</span>
+      <strong>{{ resumen.roles }}</strong>
+    </div>
+  </div>
+
+  <div class="admin-alert admin-alert--error" *ngIf="error">{{ error }}</div>
+  <div class="admin-alert admin-alert--success" *ngIf="mensaje">{{ mensaje }}</div>
+
+  <div class="admin-grid">
+    <section class="admin-panel">
+      <div class="panel-header">
+        <div>
+          <h2>{{ editandoId ? 'Editar usuario' : 'Nuevo usuario' }}</h2>
+          <p>Defina credenciales, rol y estado de acceso.</p>
+        </div>
+        <button class="btn-outline-small" type="button" (click)="nuevoUsuario()" *ngIf="editandoId">
+          Nuevo
+        </button>
+      </div>
+
+      <form class="admin-form" (ngSubmit)="guardarUsuario()">
+        <div class="form-group">
+          <label>Usuario</label>
+          <input type="text" name="username" [(ngModel)]="form.username" placeholder="usuario">
+        </div>
+
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" name="nombreCompleto" [(ngModel)]="form.nombreCompleto" placeholder="Nombre Apellido">
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" name="email" [(ngModel)]="form.email" placeholder="usuario@clinica.local">
+        </div>
+
+        <div class="form-group">
+          <label>Rol</label>
+          <select name="rolId" [(ngModel)]="form.rolId">
+            <option [ngValue]="null">Seleccione rol</option>
+            <option *ngFor="let rol of roles" [ngValue]="rol.id">
+              {{ rol.nombre }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>{{ editandoId ? 'Nueva contraseña' : 'Contraseña' }}</label>
+          <input
+            type="password"
+            name="password"
+            [(ngModel)]="form.password"
+            [placeholder]="editandoId ? 'Dejar vacío para mantener' : 'Contraseña inicial'">
+        </div>
+
+        <label class="admin-check">
+          <input type="checkbox" name="activo" [(ngModel)]="form.activo">
+          <span>Usuario activo</span>
+        </label>
+
+        <button class="btn-primary full-width" type="submit" [disabled]="guardando">
+          {{ guardando ? 'Guardando...' : (editandoId ? 'Guardar cambios' : 'Crear usuario') }}
+        </button>
+      </form>
+    </section>
+
+    <section class="admin-panel admin-panel--wide">
+      <div class="panel-header panel-header--table">
+        <div>
+          <h2>Usuarios registrados</h2>
+          <p>Busque por usuario, nombre, email o rol.</p>
+        </div>
+        <div class="admin-search">
+          <input
+            type="text"
+            name="filtro"
+            [(ngModel)]="filtro"
+            (keyup.enter)="cargarUsuarios()"
+            placeholder="Buscar usuario...">
+          <button class="btn-primary" type="button" (click)="cargarUsuarios()" [disabled]="cargando">
+            Buscar
+          </button>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="data-table admin-table" *ngIf="usuarios.length > 0; else sinUsuarios">
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Nombre</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Creado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let usuario of usuarios">
+              <td>
+                <strong>{{ usuario.username }}</strong>
+                <span>{{ usuario.email }}</span>
+              </td>
+              <td>{{ usuario.nombreCompleto }}</td>
+              <td>
+                <span class="role-pill" [title]="rolDescripcion(usuario.rol)">
+                  {{ usuario.rol }}
+                </span>
+              </td>
+              <td>
+                <span class="estado-badge" [class.estado-pagada]="usuario.activo" [class.estado-cancelada]="!usuario.activo">
+                  {{ usuario.activo ? 'ACTIVO' : 'INACTIVO' }}
+                </span>
+              </td>
+              <td>{{ usuario.creadoEn | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td>
+                <div class="admin-actions">
+                  <button class="btn-outline-small" type="button" (click)="editarUsuario(usuario)">
+                    Editar
+                  </button>
+                  <button
+                    class="btn-outline-small"
+                    type="button"
+                    (click)="cambiarEstado(usuario)">
+                    {{ usuario.activo ? 'Desactivar' : 'Activar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ng-template #sinUsuarios>
+        <div class="empty-state">
+          {{ cargando ? 'Cargando usuarios...' : 'No se encontraron usuarios.' }}
+        </div>
+      </ng-template>
+    </section>
   </div>
 </section>
