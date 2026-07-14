@@ -1,6 +1,71 @@
 {
-  "/api": {
+  "/api/auth": {
     "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/admin": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/psychology": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/public": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/recepcion": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/caja": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/psicologia": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/enfermera": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/anfitriona": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/patients": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/scheduling": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/billing": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/clinical": {
+    "target": "http://localhost:8086",
+    "secure": false,
+    "changeOrigin": true
+  },
+  "/api/queue": {
+    "target": "http://localhost:8086",
     "secure": false,
     "changeOrigin": true
   },
