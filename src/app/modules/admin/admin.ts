@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   AdminResumen,
   AdminRol,
   AdminService,
   AdminUsuario,
-  AdminUsuarioPayload
+  AdminUsuarioPayload,
+  ProductividadReporte
 } from '../../services/admin.service';
 
 @Component({
@@ -15,69 +16,161 @@ import {
   templateUrl: './admin.html',
   styleUrl: './admin.css',
 })
-export class Admin implements OnInit {
+export class Admin implements OnInit, OnDestroy {
+  @ViewChild('trendCanvas') trendCanvas?: ElementRef<HTMLCanvasElement>;
+  @ViewChild('psychologistCanvas') psychologistCanvas?: ElementRef<HTMLCanvasElement>;
   resumen: AdminResumen | null = null;
   roles: AdminRol[] = [];
   usuarios: AdminUsuario[] = [];
 
   filtro = '';
-  cargando = false;
+  cargandoResumen = false;
+  cargandoRoles = false;
+  cargandoUsuarios = false;
   guardando = false;
-  error = '';
+  errorDatos = '';
+  errorFormulario = '';
+  errorProductividad = '';
   mensaje = '';
   editandoId: number | null = null;
+  productividad: ProductividadReporte | null = null;
+  desde = this.fechaInput(new Date(Date.now() - 29 * 86400000));
+  hasta = this.fechaInput(new Date());
+  cargandoProductividad = false;
+  private trendChart?: { destroy(): void };
+  private psychologistChart?: { destroy(): void };
 
   form: AdminUsuarioPayload = this.formVacio();
 
   constructor(private adminService: AdminService) {}
 
-  ngOnInit(): void {
-    this.cargarDatos();
+  get cargando(): boolean {
+    return this.cargandoResumen || this.cargandoRoles || this.cargandoUsuarios;
   }
 
+  ngOnInit(): void {
+    this.cargarDatos();
+    this.cargarProductividad();
+  }
+
+  ngOnDestroy(): void { this.destruirGraficos(); }
+
   cargarDatos(): void {
-    this.cargando = true;
-    this.error = '';
+    this.cargandoResumen = true;
+    this.cargandoRoles = true;
+    this.errorDatos = '';
 
     this.adminService.getResumen().subscribe({
-      next: (resumen) => this.resumen = resumen
+      next: (resumen) => {
+        this.resumen = resumen;
+        this.cargandoResumen = false;
+      },
+      error: (err) => {
+        this.cargandoResumen = false;
+        this.errorDatos = err.error?.error || 'No se pudo cargar el resumen administrativo.';
+      }
     });
 
     this.adminService.listarRoles().subscribe({
-      next: (roles) => this.roles = roles,
-      error: () => this.error = 'No se pudieron cargar los roles.'
+      next: (roles) => {
+        this.roles = roles;
+        this.cargandoRoles = false;
+      },
+      error: (err) => {
+        this.cargandoRoles = false;
+        this.errorDatos = err.error?.error || 'No se pudieron cargar los roles.';
+      }
     });
 
     this.cargarUsuarios(true);
   }
 
   cargarUsuarios(inicial = false): void {
-    if (!inicial) {
-      this.cargando = true;
-    }
+    this.cargandoUsuarios = true;
+    if (!inicial) this.errorDatos = '';
     this.adminService.listarUsuarios(this.filtro).subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
-        this.cargando = false;
+        this.cargandoUsuarios = false;
       },
       error: (err) => {
-        this.error = err.error?.error || 'No se pudieron cargar los usuarios.';
-        this.cargando = false;
+        this.errorDatos = err.error?.error || 'No se pudieron cargar los usuarios.';
+        this.cargandoUsuarios = false;
       }
     });
   }
 
+  cargarProductividad(): void {
+    this.errorProductividad = '';
+    if (!this.desde || !this.hasta || this.desde > this.hasta) {
+      this.errorProductividad = 'Seleccione un periodo válido para productividad.';
+      return;
+    }
+    this.cargandoProductividad = true;
+    this.adminService.getProductividad(this.desde, this.hasta).subscribe({
+      next: reporte => {
+        this.productividad = reporte;
+        this.cargandoProductividad = false;
+        setTimeout(() => void this.renderizarGraficos());
+      },
+      error: err => {
+        this.cargandoProductividad = false;
+        this.errorProductividad = err.error?.error || 'No se pudieron cargar las métricas de productividad.';
+      }
+    });
+  }
+
+  private async renderizarGraficos(): Promise<void> {
+    if (!this.productividad) return;
+    const { Chart, registerables } = await import('chart.js');
+    Chart.register(...registerables);
+    this.destruirGraficos();
+    if (this.trendCanvas) this.trendChart = new Chart(this.trendCanvas.nativeElement, {
+      type: 'line',
+      data: {
+        labels: this.productividad.dailyTrend.map(item => item.date),
+        datasets: [
+          { label: 'Horas promedio', data: this.productividad.dailyTrend.map(item => item.averageHours), borderColor: '#0d9488', backgroundColor: 'rgba(13,148,136,.15)', tension: .3, fill: true },
+          { label: 'Altas', data: this.productividad.dailyTrend.map(item => item.discharges), borderColor: '#2563eb', backgroundColor: '#2563eb', tension: .3, yAxisID: 'yDischarges' }
+        ]
+      },
+      options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, title: { display: true, text: 'Horas' } }, yDischarges: { beginAtZero: true, position: 'right', ticks: { precision: 0 }, grid: { drawOnChartArea: false }, title: { display: true, text: 'Altas' } } } }
+    });
+    if (this.psychologistCanvas) this.psychologistChart = new Chart(this.psychologistCanvas.nativeElement, {
+      type: 'bar',
+      data: { labels: this.productividad.byPsychologist.map(item => item.psychologistName), datasets: [{ label: 'Horas promedio hasta el alta', data: this.productividad.byPsychologist.map(item => item.averageHours), backgroundColor: '#14b8a6' }] },
+      options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true } } }
+    });
+  }
+
+  private destruirGraficos(): void { this.trendChart?.destroy(); this.psychologistChart?.destroy(); this.trendChart = undefined; this.psychologistChart = undefined; }
+
+  private fechaInput(fecha: Date): string {
+    const local = new Date(fecha.getTime() - fecha.getTimezoneOffset() * 60000);
+    return local.toISOString().slice(0, 10);
+  }
+
   guardarUsuario(): void {
-    this.error = '';
+    this.errorFormulario = '';
     this.mensaje = '';
 
     if (!this.form.username.trim() || !this.form.nombreCompleto.trim() || !this.form.email.trim() || !this.form.rolId) {
-      this.error = 'Complete username, nombre, email y rol.';
+      this.errorFormulario = 'Complete usuario, nombre, correo electrónico y rol.';
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email.trim())) {
+      this.errorFormulario = 'Ingrese un correo electrónico válido.';
       return;
     }
 
     if (!this.editandoId && !this.form.password?.trim()) {
-      this.error = 'La contraseña es obligatoria para usuarios nuevos.';
+      this.errorFormulario = 'La contraseña es obligatoria para usuarios nuevos.';
+      return;
+    }
+
+    if (this.form.password?.trim() && !this.passwordValida(this.form.password.trim())) {
+      this.errorFormulario = 'La contraseña debe tener al menos 8 caracteres, una letra y un número.';
       return;
     }
 
@@ -103,7 +196,7 @@ export class Admin implements OnInit {
       },
       error: (err) => {
         this.guardando = false;
-        this.error = err.error?.error || 'No se pudo guardar el usuario.';
+        this.errorFormulario = err.error?.error || 'No se pudo guardar el usuario.';
       }
     });
   }
@@ -111,7 +204,7 @@ export class Admin implements OnInit {
   editarUsuario(usuario: AdminUsuario): void {
     this.editandoId = usuario.id;
     this.mensaje = '';
-    this.error = '';
+    this.errorFormulario = '';
     this.form = {
       username: usuario.username,
       nombreCompleto: usuario.nombreCompleto,
@@ -125,17 +218,21 @@ export class Admin implements OnInit {
   nuevoUsuario(): void {
     this.editandoId = null;
     this.form = this.formVacio();
+    this.errorFormulario = '';
   }
 
   cambiarEstado(usuario: AdminUsuario): void {
-    this.error = '';
+    const accion = usuario.activo ? 'desactivar' : 'activar';
+    if (!window.confirm(`¿Confirma que desea ${accion} al usuario ${usuario.username}?`)) return;
+
+    this.errorDatos = '';
     this.mensaje = '';
     this.adminService.cambiarEstado(usuario.id, !usuario.activo).subscribe({
       next: () => {
         this.mensaje = usuario.activo ? 'Usuario desactivado.' : 'Usuario activado.';
         this.cargarDatos();
       },
-      error: (err) => this.error = err.error?.error || 'No se pudo cambiar el estado.'
+      error: (err) => this.errorDatos = err.error?.error || 'No se pudo cambiar el estado.'
     });
   }
 
@@ -153,5 +250,9 @@ export class Admin implements OnInit {
       activo: true,
       password: ''
     };
+  }
+
+  private passwordValida(password: string): boolean {
+    return password.length >= 8 && /[A-Za-z]/.test(password) && /\d/.test(password);
   }
 }

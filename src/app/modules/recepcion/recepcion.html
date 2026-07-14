@@ -196,7 +196,8 @@
             </tbody>
           </table>
         </div>
-        <p class="text-muted mt-sm" *ngIf="resultadosBusqueda.length === 0 && !buscando && busquedaPaciente">
+        <p class="error-message mt-sm" *ngIf="errorBusquedaPaciente">{{ errorBusquedaPaciente }}</p>
+        <p class="text-muted mt-sm" *ngIf="busquedaRealizada && resultadosBusqueda.length === 0 && !buscando && !errorBusquedaPaciente">
           No se encontraron resultados.
         </p>
       </div>
@@ -285,8 +286,8 @@
               <thead><tr><th>Fecha</th><th>Hora</th><th>Especialidad</th><th>Psicólogo</th><th>Estado</th></tr></thead>
               <tbody>
                 <tr *ngFor="let c of citasPaciente">
-                  <td>{{ c.fechaCita | date:'dd/MM/yyyy' }}</td>
-                  <td>{{ c.horaCita }}</td>
+                  <td>{{ c.fecha | date:'dd/MM/yyyy' }}</td>
+                  <td>{{ c.hora }}</td>
                   <td>{{ c.especialidad }}</td>
                   <td>{{ c.psicologo }}</td>
                   <td><span class="estado-badge estado-{{ c.estado | lowercase }}">{{ c.estado }}</span></td>
@@ -312,10 +313,17 @@
           <div class="search-row">
             <div class="input-with-icon flex-1">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" [(ngModel)]="busquedaPaciente" placeholder="Ingrese DNI o nombre...">
+              <input type="text" [(ngModel)]="busquedaPaciente" placeholder="Ingrese DNI o nombre..." (keyup.enter)="buscarPaciente()">
             </div>
-            <button class="btn-primary" (click)="buscarPaciente()">Buscar</button>
+            <button class="btn-primary" (click)="buscarPaciente()" [disabled]="buscando">
+              {{ buscando ? 'Buscando...' : 'Buscar' }}
+            </button>
+            <button class="btn-secondary" (click)="abrirNuevoPacienteDesdeCita()">+ Nuevo Paciente</button>
           </div>
+          <p class="error-message mt-sm" *ngIf="errorBusquedaPaciente">{{ errorBusquedaPaciente }}</p>
+          <p class="text-muted mt-sm" *ngIf="busquedaRealizada && resultadosBusqueda.length === 0 && !buscando && !errorBusquedaPaciente">
+            No se encontraron pacientes. Puede registrar uno con “+ Nuevo Paciente”.
+          </p>
           
           <div *ngIf="resultadosBusqueda.length > 0" class="dropdown-results">
             <div class="dropdown-item" *ngFor="let p of resultadosBusqueda" 
@@ -378,7 +386,7 @@
             <div class="form-group">
               <label>Hora *</label>
               <div class="select-container">
-                <select [(ngModel)]="cita.hora" name="hora" [disabled]="horasDisponibles.length === 0">
+                <select [(ngModel)]="cita.hora" name="hora" [disabled]="cargandoDisponibilidad || horasDisponibles.length === 0">
                   <option value="">Seleccione hora</option>
                   <option *ngFor="let h of horasDisponibles" [value]="h">{{ h }}</option>
                 </select>
@@ -394,8 +402,9 @@
 
           <div class="warning-block mt-lg" *ngIf="cita.psicologoId && cita.fecha">
             <h4>Disponibilidad del Psicólogo</h4>
-            <p *ngIf="horasDisponibles.length > 0" class="app-text-success">Seleccione una hora disponible para proceder.</p>
-            <p *ngIf="horasDisponibles.length === 0" class="app-text-danger">No hay horas disponibles ese día.</p>
+            <p *ngIf="cargandoDisponibilidad" class="app-text-muted">Consultando horarios disponibles...</p>
+            <p *ngIf="!cargandoDisponibilidad && horasDisponibles.length > 0" class="app-text-success">Seleccione una hora disponible para proceder.</p>
+            <p *ngIf="!cargandoDisponibilidad && horasDisponibles.length === 0" class="app-text-danger">No hay horas disponibles ese día.</p>
           </div>
           <div class="warning-block mt-lg" *ngIf="!cita.psicologoId || !cita.fecha">
             <h4>Disponibilidad del Psicólogo</h4>

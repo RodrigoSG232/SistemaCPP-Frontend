@@ -19,6 +19,7 @@ export class Caja implements OnInit, OnDestroy {
   deudas: any[] = [];
   buscando = false;
   buscado = false;
+  errorCarga = '';
 
   deudaSeleccionada: any = null;
   medioPago = 'EFECTIVO';
@@ -59,6 +60,7 @@ export class Caja implements OnInit, OnDestroy {
     if (!silencioso) {
       this.buscando = true;
       this.buscado = false;
+      this.errorCarga = '';
       this.cdr.detectChanges();
     }
 
@@ -69,12 +71,16 @@ export class Caja implements OnInit, OnDestroy {
     this.cajaService.buscarDeudas(this.filtroPaciente || undefined, concepto).subscribe({
       next: (res) => {
         this.deudas = res;
+        this.errorCarga = '';
         this.buscando = false;
         this.buscado = true;
         this.actualizandoDeudas = false;
         this.cdr.detectChanges();
       },
-      error: () => {
+      error: (err) => {
+        this.deudas = [];
+        this.errorCarga = err.error?.error
+          || 'No se pudo consultar el microservicio de facturación.';
         this.buscando = false;
         this.buscado = true;
         this.actualizandoDeudas = false;

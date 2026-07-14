@@ -2,53 +2,82 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { EntrevistaInicialInput, ProcesoTerapeutico } from '../models/proceso-terapeutico.model';
+import { CrearProcesoClinicoExternoRequest, DiagnosticoCie10, HipotesisClinica, ProcesoClinico, RegistrarHipotesisRequest } from '../models/diagnostico.model';
+import { SesionClinica } from '../models/sesion-clinica.model';
+import { InformeAlta, RegistrarAltaRequest } from '../models/alta-clinica.model';
 
 @Injectable({ providedIn: 'root' })
 export class PsicologiaService {
-  private readonly base = `${environment.apiUrl}/psicologia`;
+  private readonly clinicalBase = `${environment.apiUrl}/clinical`;
+  private readonly psychologyBase = `${environment.apiUrl}/psychology`;
+  private readonly patientBase = `${environment.apiUrl}/patients`;
 
   constructor(private http: HttpClient) {}
 
   getAgenda(fecha?: string): Observable<any> {
-    let params = new HttpParams();
-    if (fecha) {
-      params = params.set('fecha', fecha);
-    }
-    return this.http.get<any>(`${this.base}/agenda`, { params });
+    const selectedDate = fecha || new Date().toISOString().slice(0, 10);
+    const params = new HttpParams().set('date', selectedDate);
+    return this.http.get<any>(`${this.psychologyBase}/agenda`, { params });
   }
 
   cambiarEstadoCita(citaId: number, estado: string): Observable<any> {
-    return this.http.patch(`${this.base}/citas/${citaId}/estado`, { estado });
-  }
-
-  getProceso(pacienteId: number): Observable<ProcesoTerapeutico> {
-    return this.http.get<ProcesoTerapeutico>(`${this.base}/pacientes/${pacienteId}/proceso`);
-  }
-
-  iniciarProceso(pacienteId: number, citaId: number, entrevista: EntrevistaInicialInput): Observable<ProcesoTerapeutico> {
-    return this.http.post<ProcesoTerapeutico>(`${this.base}/pacientes/${pacienteId}/proceso`, { citaId, entrevista });
-  }
-
-  actualizarFase(procesoId: number, faseActual: number, observaciones?: string): Observable<any> {
-    return this.http.patch(`${this.base}/procesos/${procesoId}/fase`, { faseActual, observaciones });
-  }
-
-  registrarSesion(data: {
-    citaId: number;
-    procesoId: number;
-    evolucion: string;
-    indicaciones: string;
-    faseSesion?: number;
-  }): Observable<any> {
-    return this.http.post<any>(`${this.base}/sesiones`, data);
-  }
-
-  getSesionesPorProceso(procesoId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.base}/sesiones/proceso/${procesoId}`);
+    return this.http.patch(`${this.psychologyBase}/appointments/${citaId}/status`, { estado });
   }
 
   getPaciente(pacienteId: number): Observable<any> {
-    return this.http.get<any>(`${this.base}/pacientes/${pacienteId}`);
+    return this.http.get<any>(`${this.patientBase}/${pacienteId}`);
+  }
+
+  buscarDiagnosticosCie10(query: string): Observable<DiagnosticoCie10[]> {
+    const params = new HttpParams().set('q', query);
+    return this.http.get<DiagnosticoCie10[]>(`${this.clinicalBase}/diagnoses/cie10`, { params });
+  }
+
+  getProcesoClinicoActivo(pacienteId: number): Observable<ProcesoClinico> {
+    return this.http.get<ProcesoClinico>(`${this.clinicalBase}/patients/${pacienteId}/processes/active`);
+  }
+
+  iniciarProcesoClinicoExterno(pacienteId: number, request: CrearProcesoClinicoExternoRequest): Observable<ProcesoClinico> {
+    return this.http.post<ProcesoClinico>(`${this.clinicalBase}/external/patients/${pacienteId}/processes`, request);
+  }
+
+  asegurarTicketVinculado(citaId: number, pacienteId: number): Observable<any> {
+    const params = new HttpParams().set('patientId', pacienteId);
+    return this.http.post(`${environment.apiUrl}/queue/tickets/appointments/${citaId}`, null, { params });
+  }
+
+  actualizarFaseClinica(procesoId: number, faseActual: number): Observable<ProcesoClinico> {
+    return this.http.patch<ProcesoClinico>(`${this.clinicalBase}/processes/${procesoId}/phase`, { faseActual });
+  }
+
+  getSesionesClinicas(procesoId: number): Observable<SesionClinica[]> {
+    return this.http.get<SesionClinica[]>(`${this.clinicalBase}/processes/${procesoId}/sessions`);
+  }
+
+  registrarSesionClinicaExterna(data: {
+    processId: number;
+    appointmentId: number;
+    sessionPhase: number;
+    evolution: string;
+    patientIndications: string;
+    registeredBy: string;
+  }): Observable<SesionClinica> {
+    return this.http.post<SesionClinica>(`${this.clinicalBase}/external/sessions`, data);
+  }
+
+  registrarAlta(procesoId: number, request: RegistrarAltaRequest): Observable<InformeAlta> {
+    return this.http.post<InformeAlta>(`${this.clinicalBase}/processes/${procesoId}/discharge`, request);
+  }
+
+  getUltimoInformeAlta(pacienteId: number): Observable<InformeAlta> {
+    return this.http.get<InformeAlta>(`${this.clinicalBase}/patients/${pacienteId}/discharge-report/latest`);
+  }
+
+  registrarHipotesis(procesoId: number, request: RegistrarHipotesisRequest): Observable<HipotesisClinica> {
+    return this.http.post<HipotesisClinica>(`${this.clinicalBase}/processes/${procesoId}/hypotheses`, request);
+  }
+
+  getHipotesis(procesoId: number): Observable<HipotesisClinica[]> {
+    return this.http.get<HipotesisClinica[]>(`${this.clinicalBase}/processes/${procesoId}/hypotheses`);
   }
 }

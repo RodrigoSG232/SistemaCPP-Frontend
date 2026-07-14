@@ -69,7 +69,8 @@
       <h3>Deudas Pendientes</h3>
       <span class="badge-count">{{ deudas.length }} resultado(s)</span>
     </div>
-    <div class="table-responsive">
+    <div class="error-message mt-sm" *ngIf="errorCarga">{{ errorCarga }}</div>
+    <div class="table-responsive" *ngIf="!errorCarga">
       <table class="data-table" *ngIf="deudas.length > 0; else sinDeudas">
         <thead>
           <tr>

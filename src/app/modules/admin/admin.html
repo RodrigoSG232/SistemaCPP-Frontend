@@ -29,7 +29,55 @@
     </div>
   </div>
 
-  <div class="admin-alert admin-alert--error" *ngIf="error">{{ error }}</div>
+  <section class="admin-panel productivity-panel">
+    <div class="panel-header productivity-header">
+      <div>
+        <p class="admin-eyebrow">HU21 · Eficiencia clínica</p>
+        <h2>Reporte de productividad</h2>
+        <p>Tiempo transcurrido desde la emisión del ticket hasta el alta médica.</p>
+      </div>
+      <div class="productivity-filters">
+        <label>Desde <input type="date" [(ngModel)]="desde"></label>
+        <label>Hasta <input type="date" [(ngModel)]="hasta"></label>
+        <button class="btn-primary" type="button" (click)="cargarProductividad()" [disabled]="cargandoProductividad">
+          {{ cargandoProductividad ? 'Calculando...' : 'Aplicar' }}
+        </button>
+      </div>
+    </div>
+
+    <ng-container *ngIf="productividad as metricas">
+      <div class="productivity-kpis">
+        <div><span>Altas</span><strong>{{ metricas.totalDischarges }}</strong></div>
+        <div><span>Promedio</span><strong>{{ metricas.averageHours | number:'1.1-2' }} h</strong></div>
+        <div><span>Mejor tiempo</span><strong>{{ metricas.minimumHours | number:'1.1-2' }} h</strong></div>
+        <div><span>Mayor tiempo</span><strong>{{ metricas.maximumHours | number:'1.1-2' }} h</strong></div>
+      </div>
+
+      <div class="productivity-charts" *ngIf="metricas.totalDischarges > 0; else sinMetricas">
+        <article class="chart-card"><h3>Evolución diaria</h3><div class="chart-container"><canvas #trendCanvas role="img" aria-label="Gráfico de evolución diaria de altas y horas promedio">Evolución diaria de productividad.</canvas></div></article>
+        <article class="chart-card"><h3>Eficiencia por psicólogo</h3><div class="chart-container"><canvas #psychologistCanvas role="img" aria-label="Gráfico de horas promedio hasta el alta por psicólogo">Eficiencia por psicólogo.</canvas></div></article>
+      </div>
+
+      <div class="table-responsive" *ngIf="metricas.cases.length > 0">
+        <table class="data-table productivity-table">
+          <thead><tr><th>Ticket</th><th>Paciente</th><th>Psicólogo</th><th>Emisión</th><th>Alta</th><th>Tiempo</th></tr></thead>
+          <tbody><tr *ngFor="let item of metricas.cases">
+            <td><strong>{{ item.ticketNumber }}</strong></td>
+            <td>{{ item.patientName }}<small>{{ item.patientHistoryNumber }}</small></td>
+            <td>{{ item.psychologistName }}</td>
+            <td>{{ item.ticketIssuedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ item.dischargedAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td><strong>{{ item.efficiencyHours | number:'1.1-2' }} h</strong></td>
+          </tr></tbody>
+        </table>
+      </div>
+      <ng-template #sinMetricas><div class="empty-state">No hay altas con tickets vinculados en el periodo seleccionado.</div></ng-template>
+    </ng-container>
+    <div class="empty-state" *ngIf="cargandoProductividad && !productividad">Calculando métricas de productividad...</div>
+    <div class="admin-alert admin-alert--error" *ngIf="errorProductividad">{{ errorProductividad }}</div>
+  </section>
+
+  <div class="admin-alert admin-alert--error" *ngIf="errorDatos">{{ errorDatos }}</div>
   <div class="admin-alert admin-alert--success" *ngIf="mensaje">{{ mensaje }}</div>
 
   <div class="admin-grid">
@@ -46,23 +94,23 @@
 
       <form class="admin-form" (ngSubmit)="guardarUsuario()">
         <div class="form-group">
-          <label>Usuario</label>
-          <input type="text" name="username" [(ngModel)]="form.username" placeholder="usuario">
+          <label for="admin-username">Usuario</label>
+          <input id="admin-username" type="text" name="username" [(ngModel)]="form.username" placeholder="usuario" autocomplete="username" required>
         </div>
 
         <div class="form-group">
-          <label>Nombre completo</label>
-          <input type="text" name="nombreCompleto" [(ngModel)]="form.nombreCompleto" placeholder="Nombre Apellido">
+          <label for="admin-nombre">Nombre completo</label>
+          <input id="admin-nombre" type="text" name="nombreCompleto" [(ngModel)]="form.nombreCompleto" placeholder="Nombre Apellido" autocomplete="name" required>
         </div>
 
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" [(ngModel)]="form.email" placeholder="usuario@clinica.local">
+          <label for="admin-email">Correo electrónico</label>
+          <input id="admin-email" type="email" name="email" [(ngModel)]="form.email" placeholder="usuario@clinica.local" autocomplete="email" required>
         </div>
 
         <div class="form-group">
-          <label>Rol</label>
-          <select name="rolId" [(ngModel)]="form.rolId">
+          <label for="admin-rol">Rol</label>
+          <select id="admin-rol" name="rolId" [(ngModel)]="form.rolId" required>
             <option [ngValue]="null">Seleccione rol</option>
             <option *ngFor="let rol of roles" [ngValue]="rol.id">
               {{ rol.nombre }}
@@ -71,12 +119,16 @@
         </div>
 
         <div class="form-group">
-          <label>{{ editandoId ? 'Nueva contraseña' : 'Contraseña' }}</label>
+          <label for="admin-password">{{ editandoId ? 'Nueva contraseña' : 'Contraseña' }}</label>
           <input
+            id="admin-password"
             type="password"
             name="password"
             [(ngModel)]="form.password"
-            [placeholder]="editandoId ? 'Dejar vacío para mantener' : 'Contraseña inicial'">
+            [placeholder]="editandoId ? 'Dejar vacío para mantener' : 'Contraseña inicial'"
+            autocomplete="new-password"
+            minlength="8">
+          <small class="text-muted">Mínimo 8 caracteres, con al menos una letra y un número.</small>
         </div>
 
         <label class="admin-check">
@@ -87,6 +139,7 @@
         <button class="btn-primary full-width" type="submit" [disabled]="guardando">
           {{ guardando ? 'Guardando...' : (editandoId ? 'Guardar cambios' : 'Crear usuario') }}
         </button>
+        <div class="admin-alert admin-alert--error" *ngIf="errorFormulario">{{ errorFormulario }}</div>
       </form>
     </section>
 
@@ -103,8 +156,8 @@
             [(ngModel)]="filtro"
             (keyup.enter)="cargarUsuarios()"
             placeholder="Buscar usuario...">
-          <button class="btn-primary" type="button" (click)="cargarUsuarios()" [disabled]="cargando">
-            Buscar
+          <button class="btn-primary" type="button" (click)="cargarUsuarios()" [disabled]="cargandoUsuarios">
+            {{ cargandoUsuarios ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
       </div>
@@ -159,7 +212,7 @@
 
       <ng-template #sinUsuarios>
         <div class="empty-state">
-          {{ cargando ? 'Cargando usuarios...' : 'No se encontraron usuarios.' }}
+          {{ cargandoUsuarios ? 'Cargando usuarios...' : 'No se encontraron usuarios.' }}
         </div>
       </ng-template>
     </section>

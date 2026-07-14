@@ -5,29 +5,24 @@ import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CajaService {
-  private readonly base = `${environment.apiUrl}/caja`;
+  private readonly base = `${environment.apiUrl}/billing`;
 
   constructor(private http: HttpClient) {}
 
   buscarDeudas(paciente?: string, concepto?: string): Observable<any[]> {
     let params = new HttpParams();
 
-    if (paciente?.trim()) {
-      params = params.set('paciente', paciente.trim());
-    }
-
-    if (concepto && concepto !== 'Todos los conceptos') {
-      params = params.set('concepto', concepto);
-    }
-
-    return this.http.get<any[]>(`${this.base}/deudas/buscar`, { params });
+    if (paciente?.trim()) params = params.set('patient', paciente.trim());
+    if (concepto && concepto !== 'Todos los conceptos') params = params.set('concept', concepto);
+    return this.http.get<any[]>(`${this.base}/debts`, { params });
   }
 
   procesarPago(deudaId: number, medioPago: string, tipo = 'BOLETA'): Observable<any> {
-    return this.http.post<any>(`${this.base}/pagar/${deudaId}`, { medioPago, tipo });
+    const cajero = sessionStorage.getItem('usuarioActual') || 'Caja';
+    return this.http.post<any>(`${this.base}/payments/${deudaId}`, { medioPago, tipo, cajero });
   }
 
   getComprobante(id: number): Observable<any> {
-    return this.http.get<any>(`${this.base}/comprobantes/${id}`);
+    return this.http.get<any>(`${this.base}/receipts/${id}`);
   }
 }

@@ -55,6 +55,7 @@ export class Recepcion implements OnInit, OnDestroy {
   pacienteSeleccionado: any = null;
   citasPaciente: any[] = [];
   buscando = false;
+  errorBusquedaPaciente = '';
   
   // Bandera para mostrar el error "No hay resultados" solo después de buscar
   busquedaRealizada = false;
@@ -67,6 +68,9 @@ export class Recepcion implements OnInit, OnDestroy {
   especialidades: any[] = [];
   psicologos: any[] = [];
   horasDisponibles: string[] = [];
+  cargandoDisponibilidad = false;
+  private disponibilidadRequestId = 0;
+  private horaSugeridaCalendario: { fecha: string; hora: string } | null = null;
 
   // 🟢 ACTUALIZADO: Se agregó el campo 'consultorio' para el nuevo diseño
   cita = {
@@ -319,12 +323,14 @@ export class Recepcion implements OnInit, OnDestroy {
     if (!this.busquedaPaciente.trim()) {
       this.resultadosBusqueda = [];
       this.busquedaRealizada = false;
+      this.errorBusquedaPaciente = '';
       this.cdr.detectChanges();
       return;
     }
 
     this.buscando = true;
     this.busquedaRealizada = false; // Ocultamos errores viejos antes de buscar
+    this.errorBusquedaPaciente = '';
     this.cdr.detectChanges();
 
     this.recepcionService.buscarPacientes(this.busquedaPaciente)
@@ -336,6 +342,13 @@ export class Recepcion implements OnInit, OnDestroy {
         next: (res) => {
           this.resultadosBusqueda = res;
           this.busquedaRealizada = true; // Solo activamos la bandera al recibir respuesta
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.resultadosBusqueda = [];
+          this.busquedaRealizada = true;
+          this.errorBusquedaPaciente = err.error?.error
+            || 'No se pudo consultar el microservicio de pacientes.';
           this.cdr.detectChanges();
         }
       });
@@ -369,6 +382,11 @@ export class Recepcion implements OnInit, OnDestroy {
     this.pacienteForm.markAsPristine();
     this.pacienteForm.markAsUntouched();
     this.cdr.detectChanges();
+  }
+
+  abrirNuevoPacienteDesdeCita() {
+    this.irAHistoria();
+    this.abrirFormNuevoPaciente();
   }
 
   guardarNuevoPaciente() {
@@ -502,9 +520,17 @@ export class Recepcion implements OnInit, OnDestroy {
   }
 
   irAAgendarCita(paciente?: any) {
+    this.disponibilidadRequestId++;
+    this.cargandoDisponibilidad = false;
+    this.horaSugeridaCalendario = null;
     this.vistaActual = 'cita';
     this.mensajeCita = '';
     this.errorCita = '';
+    this.errorBusquedaPaciente = '';
+    this.pacienteSeleccionado = paciente || null;
+    this.busquedaPaciente = paciente
+      ? `${paciente.nombres} ${paciente.apellidos}`.trim()
+      : '';
 
     this.cita = {
       pacienteId: paciente?.id || null,
@@ -523,6 +549,12 @@ export class Recepcion implements OnInit, OnDestroy {
       next: (esp) => {
         this.especialidades = esp;
         this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.especialidades = [];
+        this.errorCita = err.error?.error
+          || 'No se pudieron cargar las especialidades.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -535,27 +567,93 @@ export class Recepcion implements OnInit, OnDestroy {
   }
 
   onEspecialidadChange() {
-    if (!this.cita.especialidadId) return;
-
+    this.disponibilidadRequestId++;
     this.cita.psicologoId = null;
+    this.cita.hora = '';
     this.horasDisponibles = [];
+    this.cargandoDisponibilidad = false;
+    this.psicologos = [];
+
+    if (!this.cita.especialidadId) {
+      this.cdr.detectChanges();
+      return;
+    }
 
     this.recepcionService.listarPsicologos(this.cita.especialidadId).subscribe({
       next: (ps) => {
         this.psicologos = ps;
         this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.psicologos = [];
+        this.errorCita = err.error?.error
+          || 'No se pudieron cargar los psicólogos.';
+        this.cdr.detectChanges();
       }
     });
   }
 
-  onPsicologoOFechaChange() {
-    if (this.cita.psicologoId && this.cita.fecha) {
-      this.recepcionService.getHorarioDisponible(this.cita.psicologoId, this.cita.fecha).subscribe({
-        next: (res) => {
-          this.horasDisponibles = res.horasDisponibles || [];
-          this.cdr.detectChanges();
+  onPsicologoOFechaChange(preservarError = false) {
+    const requestId = ++this.disponibilidadRequestId;
+    const psicologoId = this.cita.psicologoId;
+    const fecha = this.cita.fecha;
+    const horaSugerida = this.horaSugeridaCalendario?.fecha === fecha
+      ? this.horaSugeridaCalendario.hora
+      : null;
+
+    if (this.horaSugeridaCalendario && this.horaSugeridaCalendario.fecha !== fecha) {
+      this.horaSugeridaCalendario = null;
+    }
+
+    this.cita.hora = '';
+    this.horasDisponibles = [];
+    this.cargandoDisponibilidad = Boolean(psicologoId && fecha);
+    if (!preservarError) this.errorCita = '';
+    this.cdr.detectChanges();
+
+    if (!psicologoId || !fecha) return;
+
+    this.recepcionService.getHorarioDisponible(psicologoId, fecha).subscribe({
+      next: (res) => {
+        if (!this.esDisponibilidadVigente(requestId, psicologoId, fecha)) return;
+
+        this.horasDisponibles = [...new Set(res.horasDisponibles || [])].sort();
+        this.cargandoDisponibilidad = false;
+
+        if (horaSugerida) {
+          if (this.horasDisponibles.includes(horaSugerida)) {
+            this.cita.hora = horaSugerida;
+          } else if (!preservarError) {
+            this.errorCita = `La hora ${horaSugerida} ya no está disponible para el psicólogo seleccionado.`;
+          }
+          this.horaSugeridaCalendario = null;
         }
-      });
+
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        if (!this.esDisponibilidadVigente(requestId, psicologoId, fecha)) return;
+
+        this.horasDisponibles = [];
+        this.cita.hora = '';
+        this.cargandoDisponibilidad = false;
+        if (!preservarError) {
+          this.errorCita = 'No se pudo consultar la disponibilidad del psicólogo.';
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  private esDisponibilidadVigente(requestId: number, psicologoId: number, fecha: string): boolean {
+    return requestId === this.disponibilidadRequestId
+      && psicologoId === this.cita.psicologoId
+      && fecha === this.cita.fecha;
+  }
+
+  private refrescarDisponibilidadTrasConflicto(): void {
+    if (this.cita.psicologoId && this.cita.fecha) {
+      this.onPsicologoOFechaChange(true);
     }
   }
 
@@ -563,6 +661,12 @@ export class Recepcion implements OnInit, OnDestroy {
     // validacion: exige el consultorio
     if (!this.cita.pacienteId || !this.cita.especialidadId || !this.cita.psicologoId || !this.cita.fecha || !this.cita.hora || !this.cita.consultorio) {
       this.errorCita = 'Complete todos los campos.';
+      return;
+    }
+
+    if (!this.horasDisponibles.includes(this.cita.hora)) {
+      this.errorCita = 'La hora seleccionada ya no está disponible. Seleccione otra hora.';
+      this.refrescarDisponibilidadTrasConflicto();
       return;
     }
 
@@ -588,6 +692,12 @@ export class Recepcion implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.mensajeCita = `Cita registrada. Se generó deuda por S/ ${res.monto}.`;
+          this.recepcionService.vincularTicketProductividad(res.id, this.cita.pacienteId!, this.cita.ticketId).subscribe({
+            error: () => {
+              this.mensajeCita += ' El ticket de productividad se sincronizará al iniciar la atención clínica.';
+              this.cdr.detectChanges();
+            }
+          });
           this.cita.hora = '';
           this.horasDisponibles = [];
           this.cargarTickets();
@@ -595,6 +705,9 @@ export class Recepcion implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.errorCita = err.error?.error || 'Error al registrar la cita.';
+          if (err.status === 409) {
+            this.refrescarDisponibilidadTrasConflicto();
+          }
           this.cdr.detectChanges();
         }
       });
@@ -666,7 +779,8 @@ export class Recepcion implements OnInit, OnDestroy {
 
     this.irAAgendarCita();
     this.cita.fecha = fecha;
-    this.cita.hora = hora;
+    this.cita.hora = '';
+    this.horaSugeridaCalendario = { fecha, hora };
     this.citaCalendarioSeleccionada = null;
     this.cdr.detectChanges();
   }

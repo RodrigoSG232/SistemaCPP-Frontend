@@ -8,8 +8,9 @@
     </div>
 
     <div *ngIf="loadingAgenda" class="loading-small">Cargando agenda...</div>
+    <div *ngIf="errorAgenda" class="error-message" role="alert">{{ errorAgenda }}</div>
 
-    <div class="queue-list" *ngIf="!loadingAgenda">
+    <div class="queue-list" *ngIf="!loadingAgenda && !errorAgenda">
       <div *ngIf="citas.length === 0" class="empty-queue">Sin citas para este día</div>
 
       <div class="queue-item"
@@ -60,31 +61,40 @@
         <div class="patient-meta">
           <span>DNI: {{ citaActiva.pacienteDni }}</span>
           <span>Cita: {{ citaActiva.fecha }} {{ citaActiva.hora }}</span>
-          <span>Sesiones: {{ sesiones.length }}</span>
+          <span>Sesiones clínicas: {{ sesionesClinicas.length }}</span>
         </div>
         <button class="btn-secondary btn-sm" (click)="mostrarHistorial = !mostrarHistorial">
           {{ mostrarHistorial ? 'Ocultar Historial' : 'Ver Historial Clínico' }}
         </button>
       </div>
 
-      <!-- Historial sesiones -->
-      <div class="card mb-md" *ngIf="mostrarHistorial">
-        <h4>Historial de Sesiones ({{ sesiones.length }})</h4>
-        <div *ngIf="sesiones.length === 0" class="text-muted">Sin sesiones registradas aún.</div>
-        <div class="timeline" *ngIf="sesiones.length > 0">
-          <div class="timeline-item" *ngFor="let s of sesiones">
+      <!-- HU19: bitácora cronológica de sesiones inmutables -->
+      <div class="card mb-md evolution-history" *ngIf="mostrarHistorial">
+        <div class="history-heading">
+          <div>
+            <h4>Línea de tiempo de evolución</h4>
+            <p class="text-muted">Bitácora clínica cronológica. Los registros guardados no se pueden editar ni eliminar.</p>
+          </div>
+          <span class="history-count">{{ sesionesClinicas.length }} sesiones</span>
+        </div>
+        <div *ngIf="!procesoClinico" class="text-muted">El paciente aún no tiene un proceso activo en el microservicio clínico.</div>
+        <div *ngIf="procesoClinico && sesionesClinicas.length === 0" class="text-muted">Sin sesiones clínicas registradas aún.</div>
+        <div class="timeline" *ngIf="sesionesClinicas.length > 0">
+          <div class="timeline-item" *ngFor="let s of sesionesClinicas; let numero = index">
             <div class="timeline-marker">
-              <div class="timeline-dot">{{ s.faseSesion }}</div>
+              <div class="timeline-dot">{{ numero + 1 }}</div>
               <div class="timeline-line"></div>
             </div>
             <div class="timeline-content card">
               <div class="sesion-meta">
-                <strong>{{ s.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}</strong>
+                <strong>Sesión {{ numero + 1 }}</strong>
+                <span class="phase-pill">Fase {{ s.sessionPhase }}</span>
+                <time>{{ s.registeredAt | date:'dd/MM/yyyy HH:mm' }}</time>
               </div>
               <div class="sesion-body">
-                <p><strong>Evolución:</strong> {{ s.evolucion }}</p>
-                <p *ngIf="s.indicacionesPaciente"><strong>Indicaciones:</strong> {{ s.indicacionesPaciente }}</p>
-                <p *ngIf="s.registradoPor"><strong>Registrado por:</strong> {{ s.registradoPor }}</p>
+                <p><strong>Evolución:</strong> {{ s.evolution }}</p>
+                <p *ngIf="s.patientIndications"><strong>Indicaciones:</strong> {{ s.patientIndications }}</p>
+                <p class="registered-by"><strong>Registrado por:</strong> {{ s.registeredBy }}</p>
               </div>
             </div>
           </div>
@@ -104,7 +114,7 @@
             <p class="text-muted">Actualice al avanzar de etapa (semanas/meses).</p>
           </div>
           <div class="phase-selector">
-            <select [(ngModel)]="faseSeleccionada" (change)="actualizarFase()">
+            <select [(ngModel)]="faseSeleccionada" (change)="actualizarFase()" [disabled]="!!informeAlta || procesoClinico?.active === false">
               <option *ngFor="let k of fasesKeys" [ngValue]="k">{{ fases[k].nombre }}</option>
             </select>
           </div>
@@ -115,6 +125,90 @@
         </div>
       </div>
 
+      <div class="clinical-sync-warning" *ngIf="proceso && faseSeleccionada === 2 && (!procesoClinico || procesoClinico.currentPhase !== 2)">
+        HU18 requiere un proceso activo en el microservicio clínico. Verifique que el proceso del paciente haya sido migrado o creado allí.
+      </div>
+
+      <section class="card hypothesis-card" *ngIf="proceso && faseSeleccionada === 2 && procesoClinico?.currentPhase === 2">
+        <div class="card-title">
+          <h3>Hipótesis diagnóstica y plan terapéutico</h3>
+        </div>
+        <p class="text-muted">Busque por código o descripción y seleccione uno o más diagnósticos CIE-10.</p>
+        <label class="field-label" for="cie10-search">Buscar diagnóstico CIE-10</label>
+        <input id="cie10-search" class="cie10-search" type="search" [(ngModel)]="busquedaCie10"
+          (input)="buscarCie10()" placeholder="Ejemplo: F41.1, ansiedad, depresión" autocomplete="off">
+        <small *ngIf="buscandoCie10" class="text-muted">Buscando diagnósticos...</small>
+        <div class="cie10-results" *ngIf="resultadosCie10.length > 0">
+          <button type="button" *ngFor="let diagnostico of resultadosCie10"
+            (click)="seleccionarDiagnostico(diagnostico)">
+            <strong>{{ diagnostico.code }}</strong><span>{{ diagnostico.description }}</span>
+          </button>
+        </div>
+        <div class="diagnosis-chips" *ngIf="diagnosticosSeleccionados.length > 0">
+          <span *ngFor="let diagnostico of diagnosticosSeleccionados">
+            <strong>{{ diagnostico.code }}</strong> {{ diagnostico.description }}
+            <button type="button" (click)="quitarDiagnostico(diagnostico.code)" aria-label="Quitar diagnóstico">×</button>
+          </span>
+        </div>
+        <label class="field-label">Hipótesis clínica *</label>
+        <textarea class="clinical-textarea clinical-textarea-sm" [(ngModel)]="hipotesisFase2"
+          placeholder="Fundamento clínico de la hipótesis diagnóstica"></textarea>
+        <label class="field-label">Plan terapéutico *</label>
+        <textarea class="clinical-textarea clinical-textarea-sm" [(ngModel)]="planTerapeutico"
+          placeholder="Objetivos, enfoque, frecuencia y acciones propuestas"></textarea>
+        <button class="btn-primary" type="button" (click)="guardarHipotesisPlan()" [disabled]="guardandoHipotesis">
+          {{ guardandoHipotesis ? 'Registrando...' : 'Registrar hipótesis y plan' }}
+        </button>
+        <div class="hypothesis-history" *ngIf="hipotesisRegistradas.length > 0">
+          <h4>Registros de Fase 2</h4>
+          <article *ngFor="let registro of hipotesisRegistradas">
+            <div><strong>{{ registro.registeredAt | date:'dd/MM/yyyy HH:mm' }}</strong> · {{ registro.registeredBy }}</div>
+            <p><strong>Diagnósticos:</strong> <span *ngFor="let d of registro.diagnoses; let last = last">{{ d.code }} - {{ d.description }}{{ last ? '' : '; ' }}</span></p>
+            <p><strong>Hipótesis:</strong> {{ registro.hypothesis }}</p>
+            <p><strong>Plan:</strong> {{ registro.therapeuticPlan }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="card discharge-card" *ngIf="proceso && faseSeleccionada === 4 && procesoClinico?.active">
+        <div class="card-title">
+          <h3>Finalización y alta médica</h3>
+        </div>
+        <p class="discharge-warning">Esta acción es definitiva. Al confirmar, la historia clínica quedará bloqueada para nuevas modificaciones.</p>
+        <label class="field-label">Motivo de alta *</label>
+        <textarea class="clinical-textarea clinical-textarea-sm" [(ngModel)]="motivoAlta" placeholder="Motivo clínico que sustenta el alta"></textarea>
+        <label class="field-label">Resumen del tratamiento *</label>
+        <textarea class="clinical-textarea" [(ngModel)]="resumenTratamiento" placeholder="Intervenciones realizadas y evolución general"></textarea>
+        <label class="field-label">Logros alcanzados *</label>
+        <textarea class="clinical-textarea clinical-textarea-sm" [(ngModel)]="logrosAlta" placeholder="Objetivos y resultados alcanzados"></textarea>
+        <label class="field-label">Recomendaciones posteriores *</label>
+        <textarea class="clinical-textarea clinical-textarea-sm" [(ngModel)]="recomendacionesAlta" placeholder="Seguimiento, prevención y recomendaciones"></textarea>
+        <button class="btn-discharge" type="button" (click)="registrarAltaMedica()" [disabled]="guardandoAlta">
+          {{ guardandoAlta ? 'Registrando alta...' : 'Confirmar alta médica' }}
+        </button>
+      </section>
+
+      <section class="card discharge-report" *ngIf="informeAlta">
+        <div class="report-heading">
+          <div>
+            <span class="discharge-status">ALTA</span>
+            <h3>Informe de finalización</h3>
+          </div>
+          <button class="btn-primary" type="button" (click)="descargarInformeAltaPdf()">Descargar PDF</button>
+        </div>
+        <div class="report-metadata">
+          <span><strong>Paciente:</strong> {{ informeAlta.patientName }}</span>
+          <span><strong>HC:</strong> {{ informeAlta.patientHistoryNumber }}</span>
+          <span><strong>Periodo:</strong> {{ informeAlta.treatmentStartDate | date:'dd/MM/yyyy' }} – {{ informeAlta.treatmentEndDate | date:'dd/MM/yyyy' }}</span>
+          <span><strong>Sesiones:</strong> {{ informeAlta.sessionCount }}</span>
+        </div>
+        <div class="report-section"><strong>Motivo de alta</strong><p>{{ informeAlta.dischargeReason }}</p></div>
+        <div class="report-section"><strong>Resumen del tratamiento</strong><p>{{ informeAlta.treatmentSummary }}</p></div>
+        <div class="report-section"><strong>Logros alcanzados</strong><p>{{ informeAlta.achievements }}</p></div>
+        <div class="report-section"><strong>Recomendaciones</strong><p>{{ informeAlta.recommendations }}</p></div>
+        <p class="locked-history">Historia clínica cerrada. No se permiten nuevas ediciones ni sesiones.</p>
+      </section>
+
       <!-- Mensaje guardado -->
       <div class="success-banner" *ngIf="mensajeSesion">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -122,7 +216,7 @@
       </div>
 
       <!-- Formulario clínico: sin proceso es la entrevista inicial, con proceso es la sesión del día -->
-      <div class="clinical-forms" [class.grid-2]="proceso" *ngIf="citaActiva.estado !== 'ATENDIDA'">
+      <div class="clinical-forms" [class.grid-2]="proceso" *ngIf="citaActiva.estado !== 'ATENDIDA' && !informeAlta">
         <div class="form-card card">
           <div class="card-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
@@ -149,7 +243,7 @@
         </div>
       </div>
 
-      <div class="action-footer" *ngIf="citaActiva.estado !== 'ATENDIDA'">
+      <div class="action-footer" *ngIf="citaActiva.estado !== 'ATENDIDA' && !informeAlta">
         <div class="error-message" *ngIf="errorSesion">{{ errorSesion }}</div>
         <button class="btn-primary btn-large" (click)="guardarFormularioClinico()" [disabled]="guardandoSesion">
           <svg class="btn-icon-left" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>

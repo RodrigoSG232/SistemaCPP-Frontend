@@ -36,9 +36,25 @@ export interface AdminUsuarioPayload {
   password?: string;
 }
 
+export interface ProductividadReporte {
+  fromDate: string;
+  toDate: string;
+  totalDischarges: number;
+  averageHours: number;
+  minimumHours: number;
+  maximumHours: number;
+  dailyTrend: { date: string; discharges: number; averageHours: number }[];
+  byPsychologist: { psychologistName: string; discharges: number; averageHours: number }[];
+  cases: {
+    reportId: number; ticketNumber: string; patientName: string; patientHistoryNumber: string;
+    psychologistName: string; ticketIssuedAt: string; dischargedAt: string; efficiencyHours: number;
+  }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private readonly base = `${environment.apiUrl}/admin`;
+  private readonly clinicalBase = `${environment.apiUrl}/clinical`;
 
   constructor(private http: HttpClient) {}
 
@@ -68,5 +84,10 @@ export class AdminService {
 
   cambiarEstado(id: number, activo: boolean): Observable<AdminUsuario> {
     return this.http.patch<AdminUsuario>(`${this.base}/usuarios/${id}/estado`, { activo });
+  }
+
+  getProductividad(from: string, to: string): Observable<ProductividadReporte> {
+    const params = new HttpParams().set('from', from).set('to', to);
+    return this.http.get<ProductividadReporte>(`${this.clinicalBase}/productivity`, { params });
   }
 }
